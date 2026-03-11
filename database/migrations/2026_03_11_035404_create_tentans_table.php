@@ -11,9 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tentans', function (Blueprint $table) {
+        Schema::create('tenants', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('name');
+            $table->string('slug')->unique()->index(); // Para: app.com/ambientaplus
+            $table->string('domain')->nullable()->unique(); // Para: fumigaciones.com
+            $table->json('branding_config')->nullable(); // colors, logo_url
+            $table->json('whatsapp_config')->nullable(); // phone, templates
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -22,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tentans');
+        Schema::dropIfExists('tenants');
     }
 };

@@ -10,12 +10,23 @@ class Booking extends ModelBase
     protected $table = 'bookings';
 
     protected $fillable = [
+        'uuid',
         'tenant_id',
         'service_id',
         'customer_id',
-        'booking_date',
-        'booking_time',
-        'booking_status',
+        'status',
+        'scheduled_at',
+        'lat',
+        'lng',
+        'custom_values',
+        'internal_notes',
+    ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+        'lat' => 'float',
+        'lng' => 'float',
+        'custom_values' => 'array',
     ];
 
     public function tenant(): BelongsTo

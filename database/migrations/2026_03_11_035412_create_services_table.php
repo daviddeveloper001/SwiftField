@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
+            $table->string('name');
+            $table->string('slug')->index();
+            $table->decimal('price', 12, 2)->default(0);
+            $table->json('field_definitions')->nullable(); // Esquema de preguntas
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->unique(['tenant_id', 'slug']);
         });
     }
 

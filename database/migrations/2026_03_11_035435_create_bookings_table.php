@@ -13,7 +13,20 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->foreignId('tenant_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('service_id')->constrained();
+            $table->foreignId('customer_id')->constrained();
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending')->index();
+            $table->timestamp('scheduled_at')->nullable()->index();
+            $table->decimal('lat', 10, 8)->nullable();  
+            $table->decimal('lng', 11, 8)->nullable();
+            $table->json('custom_values')->nullable();
+            $table->text('internal_notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->index(['tenant_id', 'status', 'scheduled_at']);
         });
     }
 
