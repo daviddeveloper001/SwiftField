@@ -8,6 +8,7 @@ use App\Filament\Resources\Bookings\Pages\ListBookings;
 use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Filament\Resources\Bookings\Schemas\BookingInfolist;
 use App\Filament\Resources\Bookings\Tables\BookingsTable;
+use App\Filament\Resources\Bookings\Widgets\BookingStatsWidget;
 use App\Models\Booking;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -40,6 +41,13 @@ class BookingResource extends Resource
     public static function table(Table $table): Table
     {
         return BookingsTable::configure($table);
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            BookingStatsWidget::class,
+        ];
     }
 
     public static function getRelations(): array

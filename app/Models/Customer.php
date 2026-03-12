@@ -14,7 +14,6 @@ class Customer extends ModelBase
         'name',
         'email',
         'phone',
-        'address',
     ];
 
     public function tenant(): BelongsTo

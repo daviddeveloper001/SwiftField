@@ -12,8 +12,17 @@ class Service extends ModelBase
     protected $fillable = [
         'tenant_id',
         'name',
-        'description',
+        'slug',
         'price',
+        'field_definitions',
+        'is_active',
+        'description',
+    ];
+
+    protected $casts = [
+        'field_definitions' => 'array',
+        'price' => 'decimal:2',
+        'is_active' => 'boolean',
     ];
 
     public function tenant(): BelongsTo

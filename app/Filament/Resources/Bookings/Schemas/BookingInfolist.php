@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\Bookings\Schemas;
 
 use Filament\Schemas\Schema;
-use Filament\Infolists\Components\Section;
+use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\KeyValueEntry;
 use App\Enums\BookingStatus;
