@@ -26,11 +26,29 @@ class BookingInfolist
                     ])->columns(2),
                 
                 Section::make('Valores Dinámicos')
-                    ->schema([
-                        KeyValueEntry::make('custom_values')
-                            ->label('')
-                            ->columnSpanFull(),
-                    ])
+                    ->schema(function ($record) {
+                        $service = $record->service;
+                        if (! $service || ! is_array($service->field_definitions) || empty($service->field_definitions)) {
+                            return [
+                                KeyValueEntry::make('custom_values')
+                                    ->label('')
+                                    ->columnSpanFull(),
+                            ];
+                        }
+
+                        $entries = [];
+                        foreach ($service->field_definitions as $field) {
+                            $name = $field['name'] ?? null;
+                            if (! $name) continue;
+
+                            $entries[] = TextEntry::make("custom_values.{$name}")
+                                ->label($field['label'] ?? ucfirst($name))
+                                ->placeholder('N/A');
+                        }
+
+                        return $entries;
+                    })
+                    ->columns(2)
                     ->description('Datos personalizados llenados por el cliente.')
                     ->collapsible(),
 
