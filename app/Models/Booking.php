@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Enums\BookingStatus;
 
 class Booking extends ModelBase
 {
@@ -27,6 +28,7 @@ class Booking extends ModelBase
         'lat' => 'float',
         'lng' => 'float',
         'custom_values' => 'array',
+        'status' => BookingStatus::class,
     ];
 
     public function tenant(): BelongsTo

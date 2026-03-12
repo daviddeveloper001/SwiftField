@@ -6,6 +6,7 @@ use Filament\Schemas\Schema;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\KeyValueEntry;
+use App\Enums\BookingStatus;
 
 class BookingInfolist
 {
@@ -21,13 +22,6 @@ class BookingInfolist
                         TextEntry::make('scheduled_at')->dateTime('d M Y - h:i A')->label('Agendamiento'),
                         TextEntry::make('status')
                             ->badge()
-                            ->color(fn (string $state): string => match ($state) {
-                                'pending' => 'warning',
-                                'confirmed' => 'info',
-                                'completed' => 'success',
-                                'cancelled' => 'danger',
-                                default => 'gray',
-                            })
                             ->label('Estado'),
                     ])->columns(2),
                 

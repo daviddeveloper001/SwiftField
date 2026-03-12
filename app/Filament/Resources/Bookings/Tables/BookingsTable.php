@@ -16,6 +16,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\DatePicker;
+use App\Models\Booking;
+use App\Services\WhatsAppNotificationService;
+use App\Enums\BookingStatus;
 
 class BookingsTable
 {
@@ -37,23 +40,11 @@ class BookingsTable
                     ->label('Fecha Agendada'),
                 TextColumn::make('status')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'pending' => 'warning',
-                        'confirmed' => 'info',
-                        'completed' => 'success',
-                        'cancelled' => 'danger',
-                        default => 'gray',
-                    })
                     ->label('Estado'),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->options([
-                        'pending' => 'Pendiente',
-                        'confirmed' => 'Confirmado',
-                        'completed' => 'Completado',
-                        'cancelled' => 'Cancelado',
-                    ])
+                    ->options(BookingStatus::class)
                     ->label('Estado'),
                 Filter::make('scheduled_at')
                     ->form([
@@ -80,13 +71,13 @@ class BookingsTable
                Action::make('Ver Ubicacion')
                     ->icon('heroicon-o-map-pin')
                     ->color('info')
-                    ->url(fn (\App\Models\Booking $record): string => "https://maps.google.com/?q={$record->lat},{$record->lng}")
+                    ->url(fn (Booking $record): string => "https://maps.google.com/?q={$record->lat},{$record->lng}")
                     ->openUrlInNewTab()
-                    ->visible(fn (\App\Models\Booking $record): bool => !empty($record->lat) && !empty($record->lng)),
+                    ->visible(fn (Booking $record): bool => !empty($record->lat) && !empty($record->lng)),
                Action::make('Contactar WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
                     ->color('success')
-                    ->url(fn (\App\Models\Booking $record) => app(\App\Services\WhatsAppNotificationService::class)->generateBookingUrl($record))
+                    ->url(fn (Booking $record) => app(WhatsAppNotificationService::class)->generateBookingUrl($record))
                     ->openUrlInNewTab(),
             ])
             ->toolbarActions([
