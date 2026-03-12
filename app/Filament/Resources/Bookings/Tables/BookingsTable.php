@@ -11,6 +11,7 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\Filter;
@@ -38,8 +39,9 @@ class BookingsTable
                     ->dateTime('d M Y - h:i A')
                     ->sortable()
                     ->label('Fecha Agendada'),
-                TextColumn::make('status')
-                    ->badge()
+                SelectColumn::make('status')
+                    ->options(BookingStatus::class)
+                    ->sortable()
                     ->label('Estado'),
             ])
             ->filters([

@@ -50,6 +50,7 @@ class BookingInfolist
                     })
                     ->columns(2)
                     ->description('Datos personalizados llenados por el cliente.')
+                    ->visible(fn ($record) => !empty($record->custom_values))
                     ->collapsible(),
 
                 Section::make('Notas Internas')
