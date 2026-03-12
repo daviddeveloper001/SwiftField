@@ -9,9 +9,18 @@ class Tenant extends ModelBase
     protected $table = 'tenants';
 
     protected $fillable = [
+        'uuid',
         'name',
         'slug',
-        'whatsapp_number',
-        'whatsapp_token',
+        'domain',
+        'branding_config',
+        'whatsapp_config',
+        'is_active',
+    ];
+
+    protected $casts = [
+        'branding_config' => 'array',
+        'whatsapp_config' => 'array',
+        'is_active' => 'boolean',
     ];
 }
