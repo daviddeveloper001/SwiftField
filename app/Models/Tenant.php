@@ -14,12 +14,14 @@ class Tenant extends ModelBase
         'slug',
         'domain',
         'branding_config',
+        'landing_config',
         'whatsapp_config',
         'is_active',
     ];
 
     protected $casts = [
         'branding_config' => 'array',
+        'landing_config' => 'array',
         'whatsapp_config' => 'array',
         'is_active' => 'boolean',
     ];

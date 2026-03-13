@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DTOs\BookingDTO;
+use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Repositories\BookingRepository;
@@ -19,17 +20,11 @@ class BookingService
     ) {
     }
 
-    /**
-     * Process a booking creation end-to-end.
-     *
-     * @param BookingDTO $dto
-     * @return \App\Models\Booking
-     * @throws Exception
-     */
-    public function createBooking(BookingDTO $dto): \App\Models\Booking
+
+    public function createBooking(BookingDTO $dto): Booking
     {
         return DB::transaction(function () use ($dto) {
-            // 1. Resolve or Create Customer based on Tenant and Phone combination
+
             $customerPhone = $dto->customer_data['phone'] ?? null;
             
             if (!$customerPhone) {
@@ -47,14 +42,12 @@ class BookingService
                 ]
             );
 
-            // 2. Validate custom_values against the Service configuration
             $service = Service::where('tenant_id', $dto->tenant_id)
                 ->findOrFail($dto->service_id);
 
             $this->validateCustomValues($dto->custom_values, $service);
 
-            // 3. Delegate Persistence
-            return $this->bookingRepository->store([
+            return $this->bookingRepository->create([
                 'uuid' => (string) Str::uuid(),
                 'tenant_id' => $dto->tenant_id,
                 'service_id' => $dto->service_id,
@@ -69,15 +62,7 @@ class BookingService
         });
     }
 
-    /**
-     * @param array $customValues
-     * @param Service $service
-     * @return void
-     * @throws Exception
-     */
     protected function validateCustomValues(array $customValues, Service $service): void
     {
-        // TODO: In the future, decode $service->field_definitions and match keys against $customValues.
-        // If strict validation fails based on definitions, throw an exception.
     }
 }

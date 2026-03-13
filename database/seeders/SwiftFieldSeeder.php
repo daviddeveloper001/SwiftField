@@ -36,6 +36,16 @@ class SwiftFieldSeeder extends Seeder
                 'branding_config' => [
                     'primary_color' => '#10b981', // Green
                 ],
+                'landing_config' => [
+                    'headline' => 'Protege tu hogar con fumigación profesional',
+                    'subheadline' => 'Bienvenido a Ambientaplus JA',
+                    'description' => 'Más de 10 años eliminando plagas y cuidando tus espacios. Servicio garantizado a domicilio en toda la ciudad.',
+                    'features' => [
+                        ['icon' => 'clock', 'title' => 'Respuesta en 24h', 'description' => 'Agendamos tu servicio en menos de un día hábil.'],
+                        ['icon' => 'shield', 'title' => 'Garantía Total', 'description' => 'Si la plaga regresa, nosotros también. Sin costo adicional.'],
+                        ['icon' => 'phone', 'title' => 'Soporte por WhatsApp', 'description' => 'Atención directa y personalizada por WhatsApp.'],
+                    ],
+                ],
                 'is_active' => true,
             ]
         );
@@ -140,6 +150,16 @@ class SwiftFieldSeeder extends Seeder
                 'name' => 'Decoraciones Pro',
                 'branding_config' => [
                     'primary_color' => '#ec4899', // Pink
+                ],
+                'landing_config' => [
+                    'headline' => 'Haz de tu evento algo inolvidable',
+                    'subheadline' => 'Bienvenido a Decoraciones Pro',
+                    'description' => 'Transformamos espacios con decoraciones únicas para bodas, cumpleaños, baby showers y eventos corporativos.',
+                    'features' => [
+                        ['icon' => 'star', 'title' => 'Diseños Exclusivos', 'description' => 'Cada evento es único. Creamos diseños personalizados para ti.'],
+                        ['icon' => 'map', 'title' => 'Servicio a Domicilio', 'description' => 'Montamos y desmontamos en la ubicación de tu evento.'],
+                        ['icon' => 'check', 'title' => 'Todo Incluido', 'description' => 'Globos, flores, manteles y más. Un solo proveedor para todo.'],
+                    ],
                 ],
                 'is_active' => true,
             ]
