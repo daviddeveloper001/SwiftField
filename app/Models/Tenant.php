@@ -25,4 +25,8 @@ class Tenant extends ModelBase
         'whatsapp_config' => 'array',
         'is_active' => 'boolean',
     ];
+    public function getWhatsappNumberAttribute(): ?string
+    {
+        return $this->whatsapp_config['phone'] ?? $this->whatsapp_config['number'] ?? null;
+    }
 }
