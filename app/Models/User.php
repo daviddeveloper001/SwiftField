@@ -31,7 +31,9 @@ class User extends Authenticatable implements HasTenants, FilamentUser
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->tenants->contains($tenant);
+        return $this->tenants()
+            ->where('tenants.id', $tenant->id)
+            ->exists();
     }
 
     public function canAccessPanel(Panel $panel): bool
