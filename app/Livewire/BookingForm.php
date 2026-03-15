@@ -19,6 +19,7 @@ class BookingForm extends Component
     public ?int $service_id = null;
     public string $customer_name = '';
     public string $customer_phone = '';
+    public string $scheduled_at = '';
     public ?float $lat = null;
     public ?float $lng = null;
     public array $custom_values = [];
@@ -85,7 +86,27 @@ class BookingForm extends Component
         $this->validate([
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
+            'scheduled_at' => 'required|after:now',
         ]);
+
+        // Validation against business hours
+        $dt = new \DateTime($this->scheduled_at);
+        $dayOfWeek = (int) $dt->format('w');
+        $time = $dt->format('H:i');
+
+        $availability = \App\Models\Availability::where('tenant_id', $this->tenantId)
+            ->where('day_of_week', $dayOfWeek)
+            ->first();
+
+        if (!$availability || !$availability->is_open) {
+            $this->addError('scheduled_at', 'Lo sentimos, el negocio no atiende en ese día.');
+            return;
+        }
+
+        if ($time < $availability->start_time?->format('H:i') || $time > $availability->end_time?->format('H:i')) {
+            $this->addError('scheduled_at', 'Lo sentimos, el negocio no atiende en ese horario.');
+            return;
+        }
 
         $dto = BookingDTO::fromArray([
             'tenant_id' => $this->tenantId,
@@ -94,7 +115,7 @@ class BookingForm extends Component
                 'name' => $this->customer_name,
                 'phone' => $this->customer_phone,
             ],
-            'scheduled_at' => now(), // Assume 'now' if not strictly required in the form yet
+            'scheduled_at' => $this->scheduled_at,
             'lat' => $this->lat,
             'lng' => $this->lng,
             'custom_values' => $this->custom_values,

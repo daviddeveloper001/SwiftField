@@ -247,6 +247,20 @@ class SwiftFieldSeeder extends Seeder
 
         // 6. Vincular usuario a tenants
         $user->tenants()->syncWithoutDetaching([$tenant1->id, $tenant2->id]);
+
+        // 7. Default Availabilities (Mon-Sat 8am-6pm)
+        foreach ([$tenant1, $tenant2] as $tenant) {
+            foreach (range(0, 6) as $day) {
+                \App\Models\Availability::updateOrCreate(
+                    ['tenant_id' => $tenant->id, 'day_of_week' => $day],
+                    [
+                        'is_open' => $day !== 0, // Closed Sunday (0)
+                        'start_time' => $day !== 0 ? '08:00' : null,
+                        'end_time' => $day !== 0 ? '18:00' : null,
+                    ]
+                );
+            }
+        }
     }
 
     private function generateCustomValues(Service $service): array

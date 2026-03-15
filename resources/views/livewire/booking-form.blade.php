@@ -145,6 +145,15 @@
                     @enderror
                 </div>
 
+                <!-- Date & Time -->
+                <div>
+                    <x-ui.label for="scheduled_at" value="Fecha y Hora de la Cita" />
+                    <x-ui.input type="datetime-local" wire:model="scheduled_at" id="scheduled_at" :error="$errors->has('scheduled_at')" />
+                    @error('scheduled_at')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 <!-- Location block with AlpineJS -->
                 <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
                     <h3 class="font-medium text-gray-900 mb-2">📍 Tu Ubicación</h3>
