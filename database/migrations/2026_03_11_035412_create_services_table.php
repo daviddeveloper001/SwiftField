@@ -19,6 +19,7 @@ return new class extends Migration
             $table->decimal('price', 12, 2)->default(0);
             $table->json('field_definitions')->nullable(); // Esquema de preguntas
             $table->boolean('is_active')->default(true);
+            $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
