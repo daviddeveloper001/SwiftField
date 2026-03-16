@@ -1,77 +1,77 @@
----
 name: Deploy SwiftField to VPS
-on: null
-push: null
-branches:
-  - main
-jobs: null
-deploy: null
-runs-on: ubuntu-latest
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v3
-  - name: Notify start deploy
-    uses: appleboy/telegram-action@master
-    with:
-      to: ${{ secrets.TELEGRAM_CHAT_ID }}
-      token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      message: |
-        🚀 DEPLOY INICIADO
-        Proyecto: SwiftField
-        Branch: main
-        Commit: ${{ github.sha }}
-        Autor: ${{ github.actor }}
-  - name: Deploy via SSH
-    uses: appleboy/ssh-action@v1.0.3
-    with:
-      host: ${{ secrets.VPS_HOST }}
-      username: ${{ secrets.VPS_USER }}
-      key: ${{ secrets.VPS_SSH_KEY }}
-      port: 22
-      script: |
-        set -e
-        cd /var/www/html/SwiftField
+on:
+  push:
+    branches:
+      - main
 
-        START=$(date +%s)
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Notify start deploy
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🚀 DEPLOY INICIADO
+            Proyecto: SwiftField
+            Branch: main
+            Commit: ${{ github.sha }}
+            Autor: ${{ github.actor }}
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: 22
+          script: |
+            set -e
+            cd /var/www/html/SwiftField
 
-        git config --global --add safe.directory /var/www/html/SwiftField
+            START=$(date +%s)
 
-        git reset --hard
-        git pull origin main
+            git config --global --add safe.directory /var/www/html/SwiftField
 
-        composer install --no-interaction --optimize-autoloader
+            git reset --hard
+            git pull origin main
 
-        if [ -f package.json ]; then
-          npm ci
-          npm run build
-        fi
+            composer install --no-interaction --optimize-autoloader
 
-        php artisan optimize:clear
-        php artisan migrate --force
+            if [ -f package.json ]; then
+              npm ci
+              npm run build
+            fi
 
-        php artisan config:cache
-        php artisan route:cache
-        php artisan view:cache
+            php artisan optimize:clear
+            php artisan migrate --force
 
-        php artisan queue:restart
-        sudo supervisorctl restart swift-field-worker:*
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
 
-        chmod -R 775 storage bootstrap/cache
-        chown -R www-data:www-data storage bootstrap/cache
+            php artisan queue:restart
+            sudo supervisorctl restart swift-field-worker:*
 
-        END=$(date +%s)
-        DURATION=$((END-START))
-        echo "Deploy completado en $DURATION segundos."
-  - name: Notify deploy finished
-    if: always()
-    uses: appleboy/telegram-action@master
-    with:
-      to: ${{ secrets.TELEGRAM_CHAT_ID }}
-      token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      message: |
-        ✅ DEPLOY FINALIZADO
-        Proyecto: SwiftField
-        Branch: main
-        Commit: ${{ github.sha }}
-        Autor: ${{ github.actor }}
-        Estado: ${{ job.status }}
+            chmod -R 775 storage bootstrap/cache
+            chown -R www-data:www-data storage bootstrap/cache
+
+            END=$(date +%s)
+            DURATION=$((END-START))
+            echo "Deploy completado en $DURATION segundos."
+      - name: Notify deploy finished
+        if: always()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            ✅ DEPLOY FINALIZADO
+            Proyecto: SwiftField
+            Branch: main
+            Commit: ${{ github.sha }}
+            Autor: ${{ github.actor }}
+            Estado: ${{ job.status }}
