@@ -8,18 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Notify start deploy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Start deploy notification
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            🚀 DEPLOY INICIADO
-            Proyecto: SwiftField
+            🚀 Iniciando deploy SwiftField
             Branch: main
             Commit: ${{ github.sha }}
             Autor: ${{ github.actor }}
@@ -37,25 +37,27 @@ jobs:
 
             START=$(date +%s)
 
+            echo "Reset y pull del repo..."
             git config --global --add safe.directory /var/www/html/SwiftField
-
             git reset --hard
             git pull origin main
 
+            echo "Composer install..."
             composer install --no-interaction --optimize-autoloader
 
             if [ -f package.json ]; then
+              echo "NPM install y build..."
               npm ci
               npm run build
             fi
 
-            php artisan optimize:clear
+            echo "Migraciones y cache Laravel..."
             php artisan migrate --force
-
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
+            echo "Reiniciando workers..."
             php artisan queue:restart
             sudo supervisorctl restart swift-field-worker:*
 
@@ -66,15 +68,14 @@ jobs:
             DURATION=$((END-START))
             echo "Deploy completado en $DURATION segundos."
 
-      - name: Notify deploy finished
+      - name: Deploy finished notification
         if: always()
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            ✅ DEPLOY FINALIZADO
-            Proyecto: SwiftField
+            ✅ Deploy SwiftField completado
             Branch: main
             Commit: ${{ github.sha }}
             Autor: ${{ github.actor }}
