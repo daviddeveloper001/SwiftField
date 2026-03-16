@@ -1,21 +1,16 @@
+---
 name: Deploy SwiftField to VPS
-
-on:
-push:
+on: null
+push: null
 branches:
-- main
-
-jobs:
-deploy:
-name: Deploy SwiftField
+  - main
+jobs: null
+deploy: null
 runs-on: ubuntu-latest
-
-
 steps:
   - name: Checkout repository
     uses: actions/checkout@v3
-
-  - name: Start deploy notification
+  - name: Notify start deploy
     uses: appleboy/telegram-action@master
     with:
       to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -26,7 +21,6 @@ steps:
         Branch: main
         Commit: ${{ github.sha }}
         Autor: ${{ github.actor }}
-
   - name: Deploy via SSH
     uses: appleboy/ssh-action@v1.0.3
     with:
@@ -42,43 +36,33 @@ steps:
 
         git config --global --add safe.directory /var/www/html/SwiftField
 
-        echo "Actualizando repositorio..."
         git reset --hard
         git pull origin main
 
-        echo "Instalando dependencias Composer..."
         composer install --no-interaction --optimize-autoloader
 
         if [ -f package.json ]; then
-          echo "Instalando dependencias NPM..."
           npm ci
           npm run build
         fi
 
-        echo "Limpiando caches Laravel..."
         php artisan optimize:clear
-
-        echo "Ejecutando migraciones..."
         php artisan migrate --force
 
-        echo "Cacheando configuraciones..."
         php artisan config:cache
         php artisan route:cache
         php artisan view:cache
 
-        echo "Reiniciando workers..."
         php artisan queue:restart
         sudo supervisorctl restart swift-field-worker:*
 
-        echo "Ajustando permisos..."
         chmod -R 775 storage bootstrap/cache
         chown -R www-data:www-data storage bootstrap/cache
 
         END=$(date +%s)
         DURATION=$((END-START))
         echo "Deploy completado en $DURATION segundos."
-
-  - name: Deploy finished notification
+  - name: Notify deploy finished
     if: always()
     uses: appleboy/telegram-action@master
     with:
