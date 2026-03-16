@@ -31,7 +31,7 @@ class BookingForm extends Component
     public function mount(int $tenantId)
     {
         $this->tenantId = $tenantId;
-        $this->services = Service::where('tenant_id', $tenantId)->where('is_active', true)->get();
+        $this->services = Service::where('tenant_id', $this->tenantId)->where('is_active', true)->get();
     }
 
     public function updatedServiceId($value)

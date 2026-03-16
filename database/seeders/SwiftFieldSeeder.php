@@ -235,12 +235,28 @@ class SwiftFieldSeeder extends Seeder
             [
                 'name' => 'Arcos de Globos',
                 'price' => 250000,
+                'is_active' => true,
                 'field_definitions' => [
                     [
                         'name' => 'color_globos',
                         'label' => 'Color de Globos',
                         'type' => 'text',
                     ],
+                ],
+            ]
+        );
+
+        // 5.1 Fumigación (Ambientaplus)
+        Service::updateOrCreate(
+            ['tenant_id' => $tenant1->id, 'slug' => 'fumigacion'],
+            [
+                'name' => 'Fumigación Residencial',
+                'price' => 80000,
+                'is_active' => true,
+                'description' => 'Servicio básico de fumigación para hogares y apartamentos.',
+                'field_definitions' => [
+                    ['name' => 'tipo_plaga', 'label' => '¿Qué plaga detectó?', 'type' => 'text'],
+                    ['name' => 'm2', 'label' => 'Metros cuadrados aprox.', 'type' => 'number'],
                 ],
             ]
         );
