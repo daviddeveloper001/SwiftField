@@ -3,14 +3,16 @@ name: Deploy SwiftField to VPS
 on:
 push:
 branches:
-- master
+- main
 
 jobs:
 deploy:
+name: Deploy SwiftField
 runs-on: ubuntu-latest
 
+
 steps:
-  - name: Checkout code
+  - name: Checkout repository
     uses: actions/checkout@v3
 
   - name: Start deploy notification
@@ -19,8 +21,9 @@ steps:
       to: ${{ secrets.TELEGRAM_CHAT_ID }}
       token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       message: |
-        🚀 Iniciando deploy SwiftField
-        Branch: master
+        🚀 DEPLOY INICIADO
+        Proyecto: SwiftField
+        Branch: main
         Commit: ${{ github.sha }}
         Autor: ${{ github.actor }}
 
@@ -37,15 +40,17 @@ steps:
 
         START=$(date +%s)
 
-        echo "Reset y pull del repo..."
-        git reset --hard
-        git pull origin master
+        git config --global --add safe.directory /var/www/html/SwiftField
 
-        echo "Composer install..."
+        echo "Actualizando repositorio..."
+        git reset --hard
+        git pull origin main
+
+        echo "Instalando dependencias Composer..."
         composer install --no-interaction --optimize-autoloader
 
         if [ -f package.json ]; then
-          echo "NPM install y build..."
+          echo "Instalando dependencias NPM..."
           npm ci
           npm run build
         fi
@@ -53,7 +58,7 @@ steps:
         echo "Limpiando caches Laravel..."
         php artisan optimize:clear
 
-        echo "Migraciones..."
+        echo "Ejecutando migraciones..."
         php artisan migrate --force
 
         echo "Cacheando configuraciones..."
@@ -65,7 +70,7 @@ steps:
         php artisan queue:restart
         sudo supervisorctl restart swift-field-worker:*
 
-        echo "Permisos Laravel..."
+        echo "Ajustando permisos..."
         chmod -R 775 storage bootstrap/cache
         chown -R www-data:www-data storage bootstrap/cache
 
@@ -80,8 +85,9 @@ steps:
       to: ${{ secrets.TELEGRAM_CHAT_ID }}
       token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       message: |
-        ✅ Deploy SwiftField completado
-        Branch: master
+        ✅ DEPLOY FINALIZADO
+        Proyecto: SwiftField
+        Branch: main
         Commit: ${{ github.sha }}
         Autor: ${{ github.actor }}
         Estado: ${{ job.status }}
