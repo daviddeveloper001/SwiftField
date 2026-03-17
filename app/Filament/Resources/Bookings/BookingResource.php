@@ -28,6 +28,10 @@ class BookingResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'Booking';
 
+    protected static ?string $modelLabel = 'Reserva';
+
+    protected static ?string $pluralModelLabel = 'Reservas';
+
     public static function form(Schema $schema): Schema
     {
         return BookingForm::configure($schema);

@@ -34,7 +34,7 @@ class BookingsTable
                 TextColumn::make('service.name')
                     ->searchable()
                     ->sortable()
-                    ->label('Servicio'),
+                    ->label('Servicio'),    
                 TextColumn::make('scheduled_at')
                     ->dateTime('d M Y - h:i A')
                     ->sortable()
@@ -70,16 +70,25 @@ class BookingsTable
             ->recordActions([
                ViewAction::make(),
                EditAction::make(),
+                Action::make('Confirmar Reserva')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->action(function (Booking $record, $livewire) {
+                        $record->update(['status' => BookingStatus::Confirmed]);
+                        $url = app(WhatsAppNotificationService::class)->getConfirmationUrl($record);
+                        $livewire->js("window.open('{$url}', '_blank')");
+                    })
+                    ->visible(fn (Booking $record): bool => $record->status === BookingStatus::Pending),
                Action::make('Ver Ubicacion')
                     ->icon('heroicon-o-map-pin')
                     ->color('info')
-                    ->url(fn (Booking $record): string => "https://maps.google.com/?q={$record->lat},{$record->lng}")
+                    ->url(fn (Booking $record): string => "https://www.google.com/maps?q={$record->lat},{$record->lng}")
                     ->openUrlInNewTab()
                     ->visible(fn (Booking $record): bool => !empty($record->lat) && !empty($record->lng)),
                Action::make('Contactar WhatsApp')
                     ->icon('heroicon-o-chat-bubble-left-ellipsis')
                     ->color('success')
-                    ->url(fn (Booking $record) => app(WhatsAppNotificationService::class)->generateBookingUrl($record))
+                    ->url(fn (Booking $record) => app(WhatsAppNotificationService::class)->getInboundUrl($record))
                     ->openUrlInNewTab(),
             ])
             ->toolbarActions([

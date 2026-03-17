@@ -85,7 +85,7 @@ class BookingForm extends Component
     {
         $this->validate([
             'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|string|max:20',
+            'customer_phone' => 'required|numeric|digits_between:7,10',
             'scheduled_at' => 'required|after:now',
         ]);
 
@@ -123,27 +123,8 @@ class BookingForm extends Component
 
         $booking = $bookingService->createBooking($dto);
 
-        // Redirect to WhatsApp
-        $tenant = Tenant::find($this->tenantId);
-        $phone = $tenant->whatsapp_number ?? '';
-
-        $message = "Hola, me gustaría agendar un servicio de {$this->selectedService->name}.\n\n";
-        $message .= "*Mis Datos:*\n";
-        $message .= "Nombre: {$this->customer_name}\n";
-        $message .= "Teléfono: {$this->customer_phone}\n\n";
-
-        if (!empty($this->custom_values)) {
-            $message .= "*Detalles:*\n";
-            foreach ($this->custom_values as $key => $val) {
-                $message .= "- {$key}: {$val}\n";
-            }
-        }
-
-        if ($this->lat && $this->lng) {
-            $message .= "\n*Ubicación:*\nhttps://maps.google.com/?q={$this->lat},{$this->lng}";
-        }
-
-        $url = "https://wa.me/{$phone}?text=" . urlencode($message);
+        // Redirect to WhatsApp using the service
+        $url = app(WhatsAppNotificationService::class)->getInboundUrl($booking);
 
         return redirect()->away($url);
     }

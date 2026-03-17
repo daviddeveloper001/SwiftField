@@ -138,7 +138,7 @@
                 <!-- Phone -->
                 <div>
                     <x-ui.label for="customer_phone" value="Número de Teléfono" />
-                    <x-ui.input type="text" wire:model="customer_phone" id="customer_phone"
+                    <x-ui.input type="number" wire:model="customer_phone" id="customer_phone"
                         placeholder="Ej. +573001234567" :error="$errors->has('customer_phone')" />
                     @error('customer_phone')
                         <span class="text-red-500 text-sm">{{ $message }}</span>

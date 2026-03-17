@@ -12,12 +12,12 @@ class WhatsAppNotificationService
     use FormatCustomValues;
 
     /**
-     * Generate the WhatsApp URL based on a Booking instance.
+     * Generate the WhatsApp URL for the inbound message (Client to Owner).
      *
      * @param Booking $booking
      * @return string
      */
-    public function generateBookingUrl(Booking $booking): string
+    public function getInboundUrl(Booking $booking): string
     {
         // Require eager-loaded relations to prevent N+1 issues
         $booking->loadMissing(['tenant', 'service', 'customer']);
@@ -55,5 +55,32 @@ class WhatsAppNotificationService
         }
 
         return "https://wa.me/{$phone}?text=" . urlencode(trim($message));
+    }
+
+    /**
+     * Generate the WhatsApp URL for the confirmation message (Owner to Client).
+     *
+     * @param Booking $booking
+     * @return string
+     */
+    public function getConfirmationUrl(Booking $booking): string
+    {
+        $booking->loadMissing(['tenant', 'service', 'customer']);
+
+        $tenant = $booking->tenant;
+        $service = $booking->service;
+        $customer = $booking->customer;
+
+        $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
+        $scheduledAt = $booking->scheduled_at->format('d M Y - h:i A');
+
+        $message = "¡Hola {$customer->name}! 👋 Soy de {$tenant->name}. Te confirmo que tu servicio de {$service->name} para el día {$scheduledAt} ha sido CONFIRMADO. ¡Nos vemos pronto!";
+
+        if ($booking->lat && $booking->lng) {
+            $message .= "\n\n📍 Ubicación registrada:\n";
+            $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
+        }
+
+        return "https://wa.me/{$customerPhone}?text=" . urlencode(trim($message));
     }
 }
