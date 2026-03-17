@@ -52,6 +52,8 @@ class TenantRegistration extends Component
                     'number' => $this->whatsapp,
                 ],
                 'is_active' => true,
+                'subscription_status' => \App\Enums\SubscriptionStatus::Trial,
+                'trial_ends_at' => now()->addDays(7),
             ]);
 
             // 2. Create User

@@ -161,7 +161,7 @@
                         a ti.</p>
 
                     <button type="button" @click="getLocation"
-                        class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition">
+                        class="inline-flex items-center px-4 py-2 bg-primary hover:brightness-90 text-white text-sm font-medium rounded-md shadow-sm transition">
                         <svg x-show="gettingLocation" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
                             xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"

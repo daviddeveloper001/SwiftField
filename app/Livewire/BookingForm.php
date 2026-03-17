@@ -85,7 +85,7 @@ class BookingForm extends Component
     {
         $this->validate([
             'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|numeric|digits_between:7,10',
+            'customer_phone' => 'required|regex:/^[0-9]{7,15}$/',
             'scheduled_at' => 'required|after:now',
         ]);
 
