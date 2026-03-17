@@ -88,4 +88,37 @@ class WhatsAppNotificationServiceTest extends TestCase
         $this->assertStringContainsString(urlencode('22 Mar 2026 - 03:30 PM'), $url);
         $this->assertStringContainsString(urlencode('https://www.google.com/maps?q=6.2442,-75.5812'), $url);
     }
+
+    public function test_get_reminder_url_generates_correct_link()
+    {
+        $tenant = Tenant::factory()->create([
+            'name' => 'Fast Cleaners'
+        ]);
+
+        $service = Service::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Home Cleaning'
+        ]);
+
+        $customer = Customer::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Bob Builder',
+            'phone' => '123456789'
+        ]);
+
+        $booking = Booking::factory()->create([
+            'tenant_id' => $tenant->id,
+            'service_id' => $service->id,
+            'customer_id' => $customer->id,
+            'scheduled_at' => now()->startOfDay()->addHours(14), // 2:00 PM
+        ]);
+
+        $serviceNotify = new WhatsAppNotificationService();
+        $url = $serviceNotify->getReminderUrl($booking);
+
+        $this->assertStringContainsString('wa.me/123456789', $url);
+        $this->assertStringContainsString(urlencode('Bob Builder'), $url);
+        $this->assertStringContainsString(urlencode('Home Cleaning'), $url);
+        $this->assertStringContainsString(urlencode('02:00 PM'), $url);
+    }
 }

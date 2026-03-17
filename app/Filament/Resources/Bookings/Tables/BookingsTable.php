@@ -38,7 +38,8 @@ class BookingsTable
                 TextColumn::make('scheduled_at')
                     ->dateTime('d M Y - h:i A')
                     ->sortable()
-                    ->label('Fecha Agendada'),
+                    ->label('Fecha Agendada')
+                    ->color(fn (Booking $record): string => $record->scheduled_at->isToday() ? 'primary' : 'gray'),
                 SelectColumn::make('status')
                     ->options(BookingStatus::class)
                     ->sortable()
@@ -68,8 +69,8 @@ class BookingsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-               ViewAction::make(),
-               EditAction::make(),
+                ViewAction::make(),
+                EditAction::make(),
                 Action::make('Confirmar Reserva')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
@@ -79,6 +80,15 @@ class BookingsTable
                         $livewire->js("window.open('{$url}', '_blank')");
                     })
                     ->visible(fn (Booking $record): bool => $record->status === BookingStatus::Pending),
+                Action::make('Enviar Recordatorio')
+                    ->icon('heroicon-o-bell-alert')
+                    ->color('warning')
+                    ->url(fn (Booking $record) => app(WhatsAppNotificationService::class)->getReminderUrl($record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Booking $record): bool => 
+                        $record->status === BookingStatus::Confirmed && 
+                        $record->scheduled_at->isToday()
+                    ),
                Action::make('Ver Ubicacion')
                     ->icon('heroicon-o-map-pin')
                     ->color('info')

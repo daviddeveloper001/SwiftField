@@ -83,4 +83,26 @@ class WhatsAppNotificationService
 
         return "https://wa.me/{$customerPhone}?text=" . urlencode(trim($message));
     }
+
+    /**
+     * Generate the WhatsApp URL for a reminder message.
+     *
+     * @param Booking $booking
+     * @return string
+     */
+    public function getReminderUrl(Booking $booking): string
+    {
+        $booking->loadMissing(['tenant', 'service', 'customer']);
+
+        $tenant = $booking->tenant;
+        $service = $booking->service;
+        $customer = $booking->customer;
+
+        $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
+        $time = $booking->scheduled_at->format('h:i A');
+
+        $message = "Hola {$customer->name}, te recordamos tu cita de {$service->name} hoy a las {$time}. ¡Estamos listos para atenderte!";
+
+        return "https://wa.me/{$customerPhone}?text=" . urlencode(trim($message));
+    }
 }
