@@ -31,7 +31,26 @@ class BookingForm
                     ->required()
                     ->searchable()
                     ->preload(),
-                Select::make('service_id')
+                
+
+                DateTimePicker::make('scheduled_at')
+                    ->label('Fecha y hora')
+                    ->required(),
+                Select::make('status')
+                    ->label('Estado')
+                    ->options(BookingStatus::class)
+                    ->required(),
+                TextInput::make('lat')
+                    ->label('Latitud')
+                    ->numeric(),
+                TextInput::make('lng')
+                    ->label('Longitud')
+                    ->numeric(),
+                Textarea::make('internal_notes')
+                    ->label('Notas Internas')
+                    ->columnSpanFull(),
+
+                    Select::make('service_id')
                     ->label('Servicio')
                     ->relationship(
                         name: 'service',
@@ -44,6 +63,7 @@ class BookingForm
                     ->live(),
                 
                 FusedGroup::make()
+                    ->label('Campos Personalizados')
                     ->schema(function (Get $get) {
                         $serviceId = $get('service_id');
                         if (! $serviceId) {
@@ -80,23 +100,6 @@ class BookingForm
                         return $fields;
                     })
                     ->columns(2),
-
-                DateTimePicker::make('scheduled_at')
-                    ->label('Fecha y hora')
-                    ->required(),
-                Select::make('status')
-                    ->label('Estado')
-                    ->options(BookingStatus::class)
-                    ->required(),
-                TextInput::make('lat')
-                    ->label('Latitud')
-                    ->numeric(),
-                TextInput::make('lng')
-                    ->label('Longitud')
-                    ->numeric(),
-                Textarea::make('internal_notes')
-                    ->label('Notas Internas')
-                    ->columnSpanFull(),
             ]);
     }
 }

@@ -124,6 +124,8 @@ class SwiftFieldSeeder extends Seeder
                     ],
                 ],
                 'is_active' => true,
+                'subscription_status' => \App\Enums\SubscriptionStatus::Trial,
+                'trial_ends_at' => now()->addDays(7),
             ]
         );
 
@@ -227,6 +229,8 @@ class SwiftFieldSeeder extends Seeder
                     ],
                 ],
                 'is_active' => true,
+                'subscription_status' => \App\Enums\SubscriptionStatus::Trial,
+                'trial_ends_at' => now()->addDays(7),
             ]
         );
 
@@ -263,6 +267,19 @@ class SwiftFieldSeeder extends Seeder
 
         // 6. Vincular usuario a tenants
         $user->tenants()->syncWithoutDetaching([$tenant1->id, $tenant2->id]);
+
+        // 6.5 Mock a tenant with Pending Payment for SuperAdmin testing
+        $tenant3 = Tenant::updateOrCreate(
+            ['slug' => 'pago-pendiente'],
+            [
+                'uuid' => (string) Str::uuid(),
+                'name' => 'Negocio por Aprobar',
+                'subscription_status' => \App\Enums\SubscriptionStatus::PendingPayment,
+                'payment_proof' => 'proofs/mock-proof.jpg',
+                'is_active' => true,
+            ]
+        );
+        $user->tenants()->syncWithoutDetaching([$tenant3->id]);
 
         // 7. Default Availabilities (Mon-Sat 8am-6pm)
         foreach ([$tenant1, $tenant2] as $tenant) {

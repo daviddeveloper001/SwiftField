@@ -14,42 +14,46 @@ class WhatsAppNotificationServiceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_get_inbound_url_generates_correct_link()
+    public function test_get_inbound_url_generates_simple_direct_link()
     {
-        $tenant = Tenant::factory()->create([
-            'name' => 'Test Business',
-            'whatsapp_config' => ['phone' => '1234567890']
-        ]);
-
-        $service = Service::factory()->create([
-            'tenant_id' => $tenant->id,
-            'name' => 'Test Service'
-        ]);
-
+        $tenant = Tenant::factory()->create();
         $customer = Customer::factory()->create([
             'tenant_id' => $tenant->id,
-            'name' => 'John Doe',
-            'phone' => '+573001112233'
+            'phone' => '+57 (300) 123-4567'
         ]);
-
         $booking = Booking::factory()->create([
             'tenant_id' => $tenant->id,
-            'service_id' => $service->id,
-            'customer_id' => $customer->id,
-            'scheduled_at' => '2026-03-20 10:00:00',
-            'lat' => 4.6097,
-            'lng' => -74.0817,
-            'custom_values' => ['Mascota' => 'Si']
+            'customer_id' => $customer->id
         ]);
 
         $serviceNotify = new WhatsAppNotificationService();
         $url = $serviceNotify->getInboundUrl($booking);
 
-        $this->assertStringContainsString('wa.me/1234567890', $url);
-        $this->assertStringContainsString(urlencode('Test Service'), $url);
-        $this->assertStringContainsString(urlencode('John Doe'), $url);
-        $this->assertStringContainsString(urlencode('20 Mar 2026 - 10:00 AM'), $url);
-        $this->assertStringContainsString(urlencode('https://www.google.com/maps?q=4.6097,-74.0817'), $url);
+        $this->assertEquals('https://wa.me/573001234567', $url);
+    }
+
+    public function test_get_booking_submission_url_generates_complex_link()
+    {
+        $tenant = Tenant::factory()->create([
+            'whatsapp_config' => ['phone' => '573112223344']
+        ]);
+        
+        $service = Service::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Fumigación']);
+        $customer = Customer::factory()->create(['tenant_id' => $tenant->id, 'name' => 'Alice']);
+        
+        $booking = Booking::factory()->create([
+            'tenant_id' => $tenant->id,
+            'service_id' => $service->id,
+            'customer_id' => $customer->id,
+            'scheduled_at' => now()->addDay(),
+        ]);
+
+        $serviceNotify = new WhatsAppNotificationService();
+        $url = $serviceNotify->getBookingSubmissionUrl($booking);
+
+        $this->assertStringContainsString('wa.me/573112223344', $url);
+        $this->assertStringContainsString(urlencode('Fumigación'), $url);
+        $this->assertStringContainsString(urlencode('Alice'), $url);
     }
 
     public function test_get_confirmation_url_generates_correct_link()

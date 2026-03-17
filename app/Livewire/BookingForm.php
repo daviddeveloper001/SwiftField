@@ -124,7 +124,7 @@ class BookingForm extends Component
         $booking = $bookingService->createBooking($dto);
 
         // Redirect to WhatsApp using the service
-        $url = app(WhatsAppNotificationService::class)->getInboundUrl($booking);
+        $url = app(WhatsAppNotificationService::class)->getBookingSubmissionUrl($booking);
 
         return redirect()->away($url);
     }
