@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use App\Models\Booking;
+use Filament\Widgets\Widget;
+use App\Enums\BookingStatus;
+use App\Services\WhatsAppNotificationService;
+use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Facades\Filament;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+
+class BookingCalendarWidget extends Widget implements HasActions
+{
+    use InteractsWithActions;
+
+    protected string $view = 'filament.widgets.custom-calendar-widget';
+    protected int | string | array $columnSpan = 'full';
+    
+    public ?Booking $activeBooking = null;
+
+    public function fetchEvents(): array
+    {
+        $tenant = Filament::getTenant();
+
+        if (! $tenant) {
+            return [];
+        }
+
+        return Booking::query()
+            ->where('tenant_id', $tenant->id)
+            ->with(['customer', 'service'])
+            ->get()
+            ->map(
+                fn (Booking $booking) => [
+                    'id' => $booking->id,
+                    'title' => ($booking->customer?->name ?? 'Sin Cliente') . ' - ' . ($booking->service?->name ?? 'Sin Servicio'),
+                    'start' => $booking->scheduled_at->toIso8601String(),
+                    'end' => $booking->scheduled_at->addHours(1)->toIso8601String(),
+                    'backgroundColor' => $this->getEventColor($booking),
+                    'borderColor' => $this->getEventColor($booking),
+                ]
+            )
+            ->all();
+    }
+
+    protected function getEventColor(Booking $booking): string
+    {
+        return match ($booking->status) {
+            BookingStatus::Confirmed => '#10b981', // green
+            BookingStatus::Pending => '#f59e0b',  // orange
+            BookingStatus::Cancelled => '#ef4444', // red
+            default => '#3b82f6', // blue
+        };
+    }
+    
+    public function mountAction(string $name, array $arguments = [], array $context = []): mixed
+    {
+        if ($name === 'viewBooking' && isset($arguments['record'])) {
+            $this->activeBooking = Booking::find($arguments['record']);
+        }
+        return parent::mountAction($name, $arguments, $context);
+    }
+
+    public function viewBookingAction(): Action
+    {
+        return Action::make('viewBooking')
+            ->modalHeading('Detalles de la Reserva')
+            ->form([
+                TextInput::make('customer_name')
+                    ->label('Cliente')
+                    ->default(fn () => $this->activeBooking?->customer?->name)
+                    ->disabled(),
+                TextInput::make('service_name')
+                    ->label('Servicio')
+                    ->default(fn () => $this->activeBooking?->service?->name)
+                    ->disabled(),
+                DateTimePicker::make('scheduled_at')
+                    ->label('Fecha Agendada')
+                    ->default(fn () => $this->activeBooking?->scheduled_at)
+                    ->disabled(),
+            ])
+            ->extraModalFooterActions([
+                Action::make('Confirmar')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->visible(fn (): bool => $this->activeBooking?->status === BookingStatus::Pending)
+                    ->action(function () {
+                        if ($this->activeBooking) {
+                            $this->activeBooking->update(['status' => BookingStatus::Confirmed]);
+                            $url = app(WhatsAppNotificationService::class)->getConfirmationUrl($this->activeBooking);
+                            $this->js("window.open('{$url}', '_blank')");
+                            $this->js("window.location.reload()");
+                        }
+                    }),
+                Action::make('Recordatorio')
+                    ->color('warning')
+                    ->icon('heroicon-o-bell-alert')
+                    ->visible(fn (): bool => $this->activeBooking?->status === BookingStatus::Confirmed)
+                    ->action(function () {
+                        if ($this->activeBooking) {
+                            $url = app(WhatsAppNotificationService::class)->getReminderUrl($this->activeBooking);
+                            $this->js("window.open('{$url}', '_blank')");
+                        }
+                    }),
+            ]);
+    }
+}

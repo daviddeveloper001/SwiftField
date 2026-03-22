@@ -20,7 +20,7 @@ use Filament\Forms\Components\DatePicker;
 use App\Models\Booking;
 use App\Services\WhatsAppNotificationService;
 use App\Enums\BookingStatus;
-use Filament\Tables\Actions\ExportAction;
+use Filament\Actions\ExportAction;
 use App\Filament\Exports\BookingExporter;
 
 class BookingsTable
