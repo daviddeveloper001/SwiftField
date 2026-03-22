@@ -17,6 +17,12 @@ class CreateTenant extends CreateRecord
     {
         return DB::transaction(function () use ($data) {
             $data['uuid'] = $data['uuid'] ?? (string) \Illuminate\Support\Str::uuid();
+            $data['subscription_status'] = $data['subscription_status'] ?? \App\Enums\SubscriptionStatus::Trial;
+            $data['trial_ends_at'] = $data['trial_ends_at'] ?? now()->addDays(7);
+            
+            $data['landing_config'] = $data['landing_config'] ?? [
+                'html_template' => \App\Support\DefaultTenantLayout::get(),
+            ];
             $tenant = static::getModel()::create($data);
 
             if (!empty($this->data['owner_name']) && !empty($this->data['email']) && !empty($this->data['password'])) {

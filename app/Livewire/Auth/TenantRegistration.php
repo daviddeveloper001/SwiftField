@@ -48,6 +48,11 @@ class TenantRegistration extends Component
                 'name' => $this->business_name,
                 'slug' => $this->slug,
                 'is_active' => true,
+                'subscription_status' => \App\Enums\SubscriptionStatus::Trial,
+                'trial_ends_at' => now()->addDays(7),
+                'landing_config' => [
+                    'html_template' => \App\Support\DefaultTenantLayout::get(),
+                ],
             ]);
 
             $user = User::create([
