@@ -3,6 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\SuperAdminPanelProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,4 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->withProviders([
+        AdminPanelProvider::class,
+        SuperAdminPanelProvider::class,
+    ])
+    ->create();
