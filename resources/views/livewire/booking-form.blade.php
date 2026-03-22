@@ -1,23 +1,26 @@
-<div class="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+<div class="max-w-2xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-md">
     <!-- Stepper Header -->
     <div class="mb-8">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between text-xs sm:text-base">
             <div class="flex items-center text-primary">
                 <span
-                    class="rounded-full h-8 w-8 flex items-center justify-center border-2 {{ $step >= 1 ? 'stepper-active font-bold' : 'border-gray-300 text-gray-400' }}">1</span>
-                <span class="ml-2 {{ $step >= 1 ? 'font-semibold' : 'text-gray-400' }}">Servicio</span>
+                    class="rounded-full h-6 w-6 sm:h-8 sm:w-8 flex flex-shrink-0 items-center justify-center border-2 {{ $step >= 1 ? 'stepper-active font-bold' : 'border-gray-300 text-gray-400' }}">1</span>
+                <span
+                    class="ml-1 sm:ml-2 whitespace-nowrap {{ $step >= 1 ? 'font-semibold' : 'text-gray-400' }}">Servicio</span>
             </div>
-            <div class="flex-1 border-t-2 {{ $step >= 2 ? 'stepper-line-active' : 'border-gray-200' }} mx-4"></div>
+            <div class="flex-1 border-t-2 {{ $step >= 2 ? 'stepper-line-active' : 'border-gray-200' }} mx-2 sm:mx-4">
+            </div>
             <div class="flex items-center {{ $step >= 2 ? 'text-primary' : 'text-gray-400' }}">
                 <span
-                    class="rounded-full h-8 w-8 flex items-center justify-center border-2 {{ $step >= 2 ? 'stepper-active font-bold' : 'border-gray-300' }}">2</span>
-                <span class="ml-2 {{ $step >= 2 ? 'font-semibold' : '' }}">Detalles</span>
+                    class="rounded-full h-6 w-6 sm:h-8 sm:w-8 flex flex-shrink-0 items-center justify-center border-2 {{ $step >= 2 ? 'stepper-active font-bold' : 'border-gray-300' }}">2</span>
+                <span class="ml-1 sm:ml-2 whitespace-nowrap {{ $step >= 2 ? 'font-semibold' : '' }}">Detalles</span>
             </div>
-            <div class="flex-1 border-t-2 {{ $step >= 3 ? 'stepper-line-active' : 'border-gray-200' }} mx-4"></div>
+            <div class="flex-1 border-t-2 {{ $step >= 3 ? 'stepper-line-active' : 'border-gray-200' }} mx-2 sm:mx-4">
+            </div>
             <div class="flex items-center {{ $step >= 3 ? 'text-primary' : 'text-gray-400' }}">
                 <span
-                    class="rounded-full h-8 w-8 flex items-center justify-center border-2 {{ $step >= 3 ? 'stepper-active font-bold' : 'border-gray-300' }}">3</span>
-                <span class="ml-2 {{ $step >= 3 ? 'font-semibold' : '' }}">Contacto</span>
+                    class="rounded-full h-6 w-6 sm:h-8 sm:w-8 flex flex-shrink-0 items-center justify-center border-2 {{ $step >= 3 ? 'stepper-active font-bold' : 'border-gray-300' }}">3</span>
+                <span class="ml-1 sm:ml-2 whitespace-nowrap {{ $step >= 3 ? 'font-semibold' : '' }}">Contacto</span>
             </div>
         </div>
     </div>
