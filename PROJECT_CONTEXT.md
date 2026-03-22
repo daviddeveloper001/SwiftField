@@ -77,3 +77,5 @@ Soft Deletes: Obligatorio en tenants, services y bookings.
 Security: Uso de UUIDs para identificadores públicos en el frontend.
 
 UX: Mobile-first obligatorio para el flujo del cliente final.
+
+7. **LOG_ANALYZER:** Capacidad para interpretar errores 400/500 y proponer correcciones en el Service correspondiente.

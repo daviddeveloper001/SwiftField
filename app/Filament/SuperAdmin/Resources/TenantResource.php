@@ -35,6 +35,8 @@ class TenantResource extends Resource
     {
         return [
             'index' => ListTenants::route('/'),
+            'create' => \App\Filament\SuperAdmin\Resources\TenantResource\Pages\CreateTenant::route('/create'),
+            'edit' => \App\Filament\SuperAdmin\Resources\TenantResource\Pages\EditTenant::route('/{record}/edit'),
         ];
     }
 }

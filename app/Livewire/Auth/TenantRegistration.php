@@ -1,91 +1,71 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Livewire\Auth;
 
-use App\Models\Service;
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Livewire\Component;
-use Livewire\Attributes\Title;
 
-#[Title('Registro de Negocio - SwiftField')]
 class TenantRegistration extends Component
 {
-    public string $ownerName = '';
-    public string $email = '';
-    public string $password = '';
-    public string $businessName = '';
-    public string $whatsapp = '';
-    public string $slug = '';
+    public $business_name = '';
+    public $slug = '';
+    public $owner_name = '';
+    public $email = '';
+    public $password = '';
 
-    protected array $rules = [
-        'ownerName' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:8',
-        'businessName' => 'required|string|max:255',
-        'whatsapp' => 'required|string|max:20',
-        'slug' => 'required|string|unique:tenants,slug',
-    ];
-
-    public function updatedBusinessName(string $value): void
+    public function updatedBusinessName($value)
     {
         $this->slug = Str::slug($value);
     }
 
-    public function register(): void
+    public function updatedSlug()
+    {
+        $this->validateOnly('slug');
+    }
+
+    protected function rules()
+    {
+        return [
+            'business_name' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:' . Tenant::class . ',slug',
+            'owner_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:' . User::class . ',email',
+            'password' => 'required|string|min:8',
+        ];
+    }
+
+    public function register()
     {
         $this->validate();
 
         DB::transaction(function () {
-            // 1. Create Tenant
             $tenant = Tenant::create([
                 'uuid' => (string) Str::uuid(),
-                'name' => $this->businessName,
+                'name' => $this->business_name,
                 'slug' => $this->slug,
-                'whatsapp_config' => [
-                    'number' => $this->whatsapp,
-                ],
                 'is_active' => true,
-                'subscription_status' => \App\Enums\SubscriptionStatus::Trial,
-                'trial_ends_at' => now()->addDays(7),
             ]);
 
-            // 2. Create User
             $user = User::create([
-                'name' => $this->ownerName,
+                'name' => $this->owner_name,
                 'email' => $this->email,
                 'password' => Hash::make($this->password),
             ]);
 
-            // 3. Link User to Tenant
             $user->tenants()->attach($tenant->id);
 
-            // 4. Create Courtesy Service
-            Service::create([
-                'tenant_id' => $tenant->id,
-                'name' => 'Mi primer servicio',
-                'slug' => 'mi-primer-servicio',
-                'price' => 0,
-                'is_active' => true,
-                'description' => 'Este es un servicio de ejemplo creado automáticamente para ayudarte a comenzar.',
-                'field_definitions' => [],
-            ]);
-
-            Auth::login($user);
+            auth()->login($user);
         });
 
-        $this->redirect(route('filament.admin.pages.dashboard', ['tenant' => $this->slug]));
+        return redirect('/admin');
     }
 
     public function render()
     {
-        return view('livewire.auth.tenant-registration')
-            ->layout('layouts.app');
+        return view('livewire.auth.tenant-registration')->layout('layouts.app');
     }
 }
