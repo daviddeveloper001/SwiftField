@@ -6,8 +6,10 @@ use Livewire\Component;
 use App\Models\Service;
 use App\Models\Tenant;
 use App\Services\BookingService;
+use App\Services\WhatsAppNotificationService;
 use App\DTOs\BookingDTO;
 use Illuminate\Support\Collection;
+use App\Models\Availability;
 
 class BookingForm extends Component
 {
@@ -56,7 +58,13 @@ class BookingForm extends Component
     public function nextStep()
     {
         if ($this->step === 1) {
-            $this->validate(['service_id' => 'required|exists:services,id']);
+            $this->validate(
+                ['service_id' => 'required|exists:services,id'],
+                [
+                    'service_id.required' => 'Por favor, selecciona un servicio para continuar.',
+                    'service_id.exists' => 'El servicio seleccionado no es válido.'
+                ]
+            );
         } elseif ($this->step === 2) {
             // Validate dynamically generated fields
             $rules = [];
@@ -87,6 +95,13 @@ class BookingForm extends Component
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|regex:/^[0-9]{7,15}$/',
             'scheduled_at' => 'required|after:now',
+        ], [
+            'customer_name.required' => 'Tu nombre es obligatorio para completar la reserva.',
+            'customer_name.max' => 'El nombre no puede exceder los 255 caracteres.',
+            'customer_phone.required' => 'El número de teléfono es obligatorio.',
+            'customer_phone.regex' => 'El formato de teléfono es inválido. Ingresa entre 7 y 15 dígitos.',
+            'scheduled_at.required' => 'Debes seleccionar la fecha y hora de la cita.',
+            'scheduled_at.after' => 'La reserva debe programarse para una fecha u hora futura.',
         ]);
 
         // Validation against business hours
@@ -94,7 +109,7 @@ class BookingForm extends Component
         $dayOfWeek = (int) $dt->format('w');
         $time = $dt->format('H:i');
 
-        $availability = \App\Models\Availability::where('tenant_id', $this->tenantId)
+        $availability = Availability::where('tenant_id', $this->tenantId)
             ->where('day_of_week', $dayOfWeek)
             ->first();
 
