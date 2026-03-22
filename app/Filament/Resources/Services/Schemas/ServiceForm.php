@@ -18,6 +18,18 @@ class ServiceForm
                 TextInput::make('name')
                     ->label('Nombre')
                     ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(fn ($set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state ?? '')))
+                    ->columnSpanFull(),
+                TextInput::make('slug')
+                    ->label('Slug')
+                    ->required()
+                    ->unique(
+                        table: 'services',
+                        column: 'slug',
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->where('tenant_id', auth()->user()->tenant_id)
+                    )
                     ->columnSpanFull(),
                 Textarea::make('description')
                     ->label('Descripción')
