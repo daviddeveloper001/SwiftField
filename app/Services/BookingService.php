@@ -31,6 +31,18 @@ class BookingService
                 throw new Exception("Customer phone is required to create a booking.");
             }
 
+            // Overbooking prevention lock
+            $exists = Booking::where('tenant_id', $dto->tenant_id)
+                ->where('scheduled_at', $dto->scheduled_at)
+                ->lockForUpdate()
+                ->exists();
+
+            if ($exists) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'scheduled_at' => 'Lo sentimos, este horario acaba de ser reservado por otro cliente. Por favor elige otro.',
+                ]);
+            }
+
             $customer = Customer::firstOrCreate(
                 [
                     'tenant_id' => $dto->tenant_id,
