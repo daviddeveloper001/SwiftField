@@ -20,6 +20,8 @@ use Filament\Forms\Components\DatePicker;
 use App\Models\Booking;
 use App\Services\WhatsAppNotificationService;
 use App\Enums\BookingStatus;
+use Filament\Tables\Actions\ExportAction;
+use App\Filament\Exports\BookingExporter;
 
 class BookingsTable
 {
@@ -107,6 +109,12 @@ class BookingsTable
                     ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
+            ])
+            ->headerActions([
+                ExportAction::make()
+                    ->exporter(BookingExporter::class)
+                    ->label('Exportar Reporte')
+                    ->icon('heroicon-o-document-arrow-down'),
             ]);
     }
 }

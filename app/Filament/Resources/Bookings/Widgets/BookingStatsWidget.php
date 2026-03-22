@@ -20,6 +20,24 @@ class BookingStatsWidget extends BaseWidget
             return [];
         }
 
+        // 0. Ventas Proyectadas (Mes actual vs Pasado)
+        $currentMonthSales = Booking::where('bookings.tenant_id', $tenant->id)
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->whereMonth('scheduled_at', now()->month)
+            ->whereYear('scheduled_at', now()->year)
+            ->sum('services.price');
+
+        $lastMonthSales = Booking::where('bookings.tenant_id', $tenant->id)
+            ->join('services', 'bookings.service_id', '=', 'services.id')
+            ->whereMonth('scheduled_at', now()->subMonth()->month)
+            ->whereYear('scheduled_at', now()->subMonth()->year)
+            ->sum('services.price');
+
+        $trend = $currentMonthSales - $lastMonthSales;
+        $trendIcon = $trend >= 0 ? 'heroicon-m-arrow-trending-up' : 'heroicon-m-arrow-trending-down';
+        $trendColor = $trend >= 0 ? 'success' : 'danger';
+        $trendDescription = $trend >= 0 ? '+$' . number_format($trend, 2) . ' vs mes anterior' : '-$' . number_format(abs($trend), 2) . ' vs mes anterior';
+
         // 1. Reservas de Hoy
         $todayCount = Booking::where('tenant_id', $tenant->id)
             ->whereDate('scheduled_at', now())
@@ -44,6 +62,11 @@ class BookingStatsWidget extends BaseWidget
         }
 
         return [
+            Stat::make('Ventas Proyectadas', '$' . number_format((float) $currentMonthSales, 2))
+                ->description($trendDescription)
+                ->descriptionIcon($trendIcon)
+                ->color($trendColor),
+
             Stat::make('Reservas de Hoy', $todayCount)
                 ->description('Total agendado para hoy')
                 ->descriptionIcon('heroicon-m-calendar-days')

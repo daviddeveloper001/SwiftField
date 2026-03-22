@@ -9,6 +9,7 @@ use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Filament\Resources\Bookings\Schemas\BookingInfolist;
 use App\Filament\Resources\Bookings\Tables\BookingsTable;
 use App\Filament\Resources\Bookings\Widgets\BookingStatsWidget;
+use App\Filament\Resources\Bookings\Widgets\ServiceUsageChart;
 use App\Models\Booking;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -51,6 +52,7 @@ class BookingResource extends Resource
     {
         return [
             BookingStatsWidget::class,
+            ServiceUsageChart::class,
         ];
     }
 
