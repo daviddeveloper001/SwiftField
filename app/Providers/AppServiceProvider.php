@@ -19,6 +19,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Support\Facades\Gate::policy(
+            \BezhanSalleh\FilamentExceptions\Models\Exception::class,
+            \App\Policies\ExceptionPolicy::class
+        );
+
+        if ($this->app->runningInConsole() || $this->app->environment('testing')) {
+            if (class_exists(\BezhanSalleh\FilamentExceptions\FilamentExceptions::class)) {
+                \BezhanSalleh\FilamentExceptions\FilamentExceptions::stopRecording();
+            }
+        }
     }
 }

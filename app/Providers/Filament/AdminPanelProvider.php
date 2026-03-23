@@ -60,6 +60,9 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
+            ->plugins([
+                \BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin::make(),
+            ])
             ->tenantMiddleware([
                 \App\Http\Middleware\CheckSubscription::class,
             ], isPersistent: true);

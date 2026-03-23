@@ -3,9 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Tenant extends ModelBase
 {
+    use LogsActivity;
+
     protected $table = 'tenants';
 
     protected $fillable = [
@@ -59,5 +63,13 @@ class Tenant extends ModelBase
     public function isExpired(): bool
     {
         return !$this->hasValidSubscription();
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
     }
 }

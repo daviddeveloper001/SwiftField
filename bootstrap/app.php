@@ -13,10 +13,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->web(append: [
+            \App\Http\Middleware\LogContext::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->context(function () {
+            try {
+                if (class_exists(\Filament\Facades\Filament::class) && \Filament\Facades\Filament::isServing() && \Filament\Facades\Filament::hasTenancy()) {
+                    if ($tenant = \Filament\Facades\Filament::getTenant()) {
+                        return ['tenant_id' => $tenant->id];
+                    }
+                }
+            } catch (\Throwable $e) {}
+
+            return [];
+        });
     })
     ->withProviders([
         AdminPanelProvider::class,

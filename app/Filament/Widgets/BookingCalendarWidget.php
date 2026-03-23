@@ -12,10 +12,15 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Facades\Filament;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 
-class BookingCalendarWidget extends Widget implements HasActions
+class BookingCalendarWidget extends Widget implements HasActions, HasForms
 {
-    use InteractsWithActions;
+    use InteractsWithActions {
+        mountAction as baseMountAction;
+    }
+    use InteractsWithForms;
 
     protected string $view = 'filament.widgets.custom-calendar-widget';
     protected int | string | array $columnSpan = 'full';
@@ -62,7 +67,7 @@ class BookingCalendarWidget extends Widget implements HasActions
         if ($name === 'viewBooking' && isset($arguments['record'])) {
             $this->activeBooking = Booking::find($arguments['record']);
         }
-        return parent::mountAction($name, $arguments, $context);
+        return $this->baseMountAction($name, $arguments, $context);
     }
 
     public function viewBookingAction(): Action

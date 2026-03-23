@@ -52,6 +52,9 @@ class SuperAdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                \BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin::make(),
             ]);
     }
 }
