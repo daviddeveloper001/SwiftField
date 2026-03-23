@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\BaseModel;
+use App\Models\ModelBase;
 
-class SystemException extends BaseModel
+class SystemException extends ModelBase
 {
     use MassPrunable;
 
