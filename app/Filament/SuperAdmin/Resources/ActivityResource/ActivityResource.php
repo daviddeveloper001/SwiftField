@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Filament\SuperAdmin\Resources;
+namespace App\Filament\SuperAdmin\Resources\ActivityResource;
 
 use App\Filament\SuperAdmin\Resources\ActivityResource\Pages;
+use App\Filament\SuperAdmin\Resources\ActivityResource\Tables\ActivityTable;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,28 +21,7 @@ class ActivityResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('log_name')->label('Categoría')->searchable(),
-                Tables\Columns\TextColumn::make('description')->label('Descripción')->searchable(),
-                Tables\Columns\TextColumn::make('subject_type')->label('Modelo Afectado')->searchable(),
-                Tables\Columns\TextColumn::make('subject_id')->label('ID Modelo')->searchable(),
-                Tables\Columns\TextColumn::make('causer_type')->label('Tipo Usuario')->searchable(),
-                Tables\Columns\TextColumn::make('causer_id')->label('ID Usuario')->searchable(),
-                Tables\Columns\TextColumn::make('event')->label('Evento')->searchable(),
-                Tables\Columns\TextColumn::make('created_at')->label('Fecha')->dateTime()->sortable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Columns\Layout\ViewField::make('properties'),
-                Tables\Actions\ViewAction::make(),
-            ])
-            ->bulkActions([
-                //
-            ])
-            ->defaultSort('created_at', 'desc');
+        return ActivityTable::make($table);
     }
 
     public static function getRelations(): array

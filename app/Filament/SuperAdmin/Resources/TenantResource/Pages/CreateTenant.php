@@ -2,7 +2,7 @@
 
 namespace App\Filament\SuperAdmin\Resources\TenantResource\Pages;
 
-use App\Filament\SuperAdmin\Resources\TenantResource;
+use App\Filament\SuperAdmin\Resources\TenantResource\TenantResource;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;

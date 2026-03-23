@@ -29,6 +29,34 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return [];
         });
+
+        $exceptions->report(function (\Throwable $e) {
+            // Ignore 404s
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                return;
+            }
+
+            try {
+                $tenantId = null;
+                if (class_exists(\Filament\Facades\Filament::class) && \Filament\Facades\Filament::isServing() && \Filament\Facades\Filament::hasTenancy()) {
+                    $tenantId = \Filament\Facades\Filament::getTenant()?->id;
+                }
+
+                \App\Models\SystemException::create([
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'stack_trace' => $e->getTraceAsString(),
+                    'user_id' => auth()->id() ?? null,
+                    'tenant_id' => $tenantId,
+                    'url' => request()->fullUrl(),
+                    'method' => request()->method(),
+                    'status' => 'open',
+                ]);
+            } catch (\Throwable $th) {
+                // Silently fail if logging fails to prevent loops
+            }
+        });
     })
     ->withProviders([
         AdminPanelProvider::class,

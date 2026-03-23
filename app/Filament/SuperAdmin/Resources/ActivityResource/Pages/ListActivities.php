@@ -2,7 +2,7 @@
 
 namespace App\Filament\SuperAdmin\Resources\ActivityResource\Pages;
 
-use App\Filament\SuperAdmin\Resources\ActivityResource;
+use App\Filament\SuperAdmin\Resources\ActivityResource\ActivityResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

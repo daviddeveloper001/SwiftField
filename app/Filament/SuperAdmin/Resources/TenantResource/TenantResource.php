@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\SuperAdmin\Resources;
+namespace App\Filament\SuperAdmin\Resources\TenantResource;
 
 use App\Enums\SubscriptionStatus;
 use App\Models\Tenant;
