@@ -19,9 +19,8 @@ jobs:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
-            🚀 Iniciando deploy SwiftField...
-            Branch: main
-            Commit: ${{ github.sha }}
+            🚀 Iniciando deploy SwiftField
+            Branch: master
             Autor: ${{ github.actor }}
 
       - name: Deploy via SSH
@@ -35,10 +34,7 @@ jobs:
             set -e
             cd /var/www/html/SwiftField
 
-            START=$(date +%s)
-
             echo "Reset y pull del repo..."
-            git config --global --add safe.directory /var/www/html/SwiftField
             git reset --hard
             git pull origin main
 
@@ -57,16 +53,9 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
-            echo "Reiniciando workers..."
-            php artisan queue:restart
-            sudo supervisorctl restart swift-field-worker:*
-
             chmod -R 775 storage bootstrap/cache
             chown -R www-data:www-data storage bootstrap/cache
-
-            END=$(date +%s)
-            DURATION=$((END-START))
-            echo "Deploy completado en $DURATION segundos."
+            echo "Deploy completado."
 
       - name: Deploy finished notification
         if: always()
@@ -76,7 +65,4 @@ jobs:
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
             ✅ Deploy SwiftField completado
-            Branch: main
-            Commit: ${{ github.sha }}
-            Autor: ${{ github.actor }}
             Estado: ${{ job.status }}
