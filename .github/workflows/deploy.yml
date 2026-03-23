@@ -36,7 +36,7 @@ jobs:
 
             echo "Reset y pull del repo..."
             git reset --hard
-            git pull origin master
+            git pull origin main
 
             echo "Composer install..."
             composer install --no-interaction --optimize-autoloader
