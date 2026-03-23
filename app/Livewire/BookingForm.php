@@ -93,13 +93,13 @@ class BookingForm extends Component
     {
         $this->validate([
             'customer_name' => 'required|string|max:255',
-            'customer_phone' => 'required|regex:/^[0-9]{7,15}$/',
+            'customer_phone' => ['required', 'string', 'regex:/^3[0-9]{9}$/'],
             'scheduled_at' => 'required|after:now',
         ], [
             'customer_name.required' => 'Tu nombre es obligatorio para completar la reserva.',
             'customer_name.max' => 'El nombre no puede exceder los 255 caracteres.',
             'customer_phone.required' => 'El número de teléfono es obligatorio.',
-            'customer_phone.regex' => 'El formato de teléfono es inválido. Ingresa entre 7 y 15 dígitos.',
+            'customer_phone.regex' => 'Por favor, ingresa un número celular válido de 10 dígitos (ej: 310 123 4567).',
             'scheduled_at.required' => 'Debes seleccionar la fecha y hora de la cita.',
             'scheduled_at.after' => 'La reserva debe programarse para una fecha u hora futura.',
         ]);
@@ -128,7 +128,7 @@ class BookingForm extends Component
             'service_id' => $this->service_id,
             'customer_data' => [
                 'name' => $this->customer_name,
-                'phone' => $this->customer_phone,
+                'phone' => '57' . preg_replace('/[^0-9]/', '', $this->customer_phone),
             ],
             'scheduled_at' => $this->scheduled_at,
             'lat' => $this->lat,

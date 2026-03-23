@@ -72,4 +72,19 @@ class Tenant extends ModelBase
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    protected static function booted()
+    {
+        static::saving(function ($tenant) {
+            $config = $tenant->whatsapp_config;
+            if (is_array($config) && isset($config['phone'])) {
+                $clean = preg_replace('/[^0-9]/', '', $config['phone']);
+                if (!empty($clean) && !str_starts_with($clean, '57')) {
+                    $clean = '57' . $clean;
+                }
+                $config['phone'] = $clean;
+                $tenant->whatsapp_config = $config;
+            }
+        });
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Customer extends ModelBase
 {
@@ -19,5 +20,19 @@ class Customer extends ModelBase
     public function tenant(): BelongsTo
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            set: function (?string $value) {
+                if (empty($value)) return $value;
+                $clean = preg_replace('/[^0-9]/', '', $value);
+                if (!empty($clean) && !str_starts_with($clean, '57')) {
+                    $clean = '57' . $clean;
+                }
+                return $clean;
+            }
+        );
     }
 }

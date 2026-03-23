@@ -140,11 +140,17 @@
 
                 <!-- Phone -->
                 <div>
-                    <x-ui.label for="customer_phone" value="Número de Teléfono" />
-                    <x-ui.input type="number" wire:model="customer_phone" id="customer_phone"
-                        placeholder="Ej. +573001234567" :error="$errors->has('customer_phone')" />
+                    <x-ui.label for="customer_phone" value="Número de Celular" />
+                    <div class="relative mt-1 flex rounded-md shadow-sm">
+                        <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm font-semibold">
+                            +57
+                        </span>
+                        <input x-data x-mask="999 999 9999" type="tel" wire:model="customer_phone" id="customer_phone"
+                            class="flex-1 block w-full rounded-none rounded-r-md focus:border-primary focus:ring-primary sm:text-sm {{ $errors->has('customer_phone') ? 'border-red-500' : 'border-gray-300' }}"
+                            placeholder="310 123 4567" />
+                    </div>
                     @error('customer_phone')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                        <span class="block mt-1 text-red-500 text-sm">{{ $message }}</span>
                     @enderror
                 </div>
 

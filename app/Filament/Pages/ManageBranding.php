@@ -85,7 +85,13 @@ class ManageBranding extends Page implements HasForms
                     ->schema([
                         TextInput::make('phone')
                             ->label('Número de WhatsApp')
-                            ->helperText('Incluye el código de país (ej: 57300...)')
+                            ->prefix('+57')
+                            ->mask('999 999 9999')
+                            ->stripCharacters(' ')
+                            ->rules(['regex:/^3[0-9]{9}$/'])
+                            ->validationMessages([
+                                'regex' => 'Por favor, ingresa un número celular válido de 10 dígitos (ej: 310 123 4567)',
+                            ])
                             ->required(),
                     ]),
             ])
@@ -107,13 +113,17 @@ class ManageBranding extends Page implements HasForms
             Storage::disk('public')->delete($oldLogo);
         }
 
+        // Prepend 57 before saving to DB
+        $cleanPhone = preg_replace('/[^0-9]/', '', $state['phone']);
+        $finalPhone = '57' . $cleanPhone;
+
         $tenant->update([
             'branding_config' => [
                 'primary_color' => $state['primary_color'],
                 'logo_url' => $state['logo_url'],
             ],
             'whatsapp_config' => [
-                'phone' => $state['phone'],
+                'phone' => $finalPhone,
             ],
         ]);
 
