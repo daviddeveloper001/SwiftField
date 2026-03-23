@@ -2,13 +2,13 @@
 
 namespace App\Filament\SuperAdmin\Resources\ActivityResource\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
-use Filament\Actions\ForceDeleteBulkAction; 
-use Filament\Actions\RestoreBulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ForceDeleteBulkAction; 
+use Filament\Tables\Actions\RestoreBulkAction;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\SelectColumn;
@@ -43,8 +43,7 @@ class ActivityTable
                     ->label('Filtrar por Estado'),
             ])
             ->actions([
-                Tables\Columns\Layout\ViewField::make('properties'),
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
             ])
             ->bulkActions([
                BulkActionGroup::make([

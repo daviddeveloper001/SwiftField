@@ -21,7 +21,7 @@ class ActivityResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ActivityTable::make($table);
+        return ActivityTable::configure($table);
     }
 
     public static function getRelations(): array
