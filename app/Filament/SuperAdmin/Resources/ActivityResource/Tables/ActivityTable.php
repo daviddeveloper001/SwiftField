@@ -2,10 +2,10 @@
 
 namespace App\Filament\SuperAdmin\Resources\ActivityResource\Tables;
 
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ForceDeleteBulkAction; 
 use Filament\Tables\Actions\RestoreBulkAction;

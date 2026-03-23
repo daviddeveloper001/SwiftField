@@ -5,7 +5,7 @@ namespace App\Filament\SuperAdmin\Resources\SystemExceptions\Schemas;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Support\HtmlString;
+use Illuminate\Support\HtmlString;
 
 class SystemExceptionInfolist
 {
