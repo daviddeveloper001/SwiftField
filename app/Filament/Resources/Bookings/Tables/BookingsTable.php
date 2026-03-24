@@ -22,6 +22,8 @@ use Filament\Forms\Components\TextInput;
 use App\Models\Booking;
 use App\Services\WhatsAppNotificationService;
 use App\Enums\BookingStatus;
+use Filament\Actions\ExportAction;
+use App\Filament\Exports\BookingExporter;
 
 class BookingsTable
 {

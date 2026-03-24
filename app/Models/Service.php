@@ -17,12 +17,15 @@ class Service extends ModelBase
         'field_definitions',
         'is_active',
         'description',
+        'requires_quote',
+        'quote_label',
     ];
 
     protected $casts = [
         'field_definitions' => 'array',
         'price' => 'decimal:2',
         'is_active' => 'boolean',
+        'requires_quote' => 'boolean',
     ];
 
     public function tenant(): BelongsTo

@@ -44,6 +44,15 @@ class ServiceForm
                     ->label('Activo')
                     ->required()
                     ->default(true),
+                Toggle::make('requires_quote')
+                    ->label('Requiere Cotización')
+                    ->helperText('Si se activa, el cliente pedirá un presupuesto en lugar de reservar una cita con fecha fija.')
+                    ->live(),
+                TextInput::make('quote_label')
+                    ->label('Etiqueta para detalles')
+                    ->placeholder('Ej: Describe tu proyecto o ideas...')
+                    ->visible(fn ($get) => $get('requires_quote'))
+                    ->required(fn ($get) => $get('requires_quote')),
                 Repeater::make('field_definitions')
                     ->label('Definición de Campos')
                     ->schema([
