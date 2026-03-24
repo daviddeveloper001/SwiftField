@@ -70,8 +70,8 @@ class TenantsTable
             ])
             ->bulkActions([
                BulkActionGroup::make([
-                   DeleteBulkAction::make(),
-                ]),
+                   DeleteBulkAction::make()->label('Eliminar Seleccionados'),
+                ])->label('Acciones Masivas'),
             ]);
     }
 }

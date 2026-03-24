@@ -43,12 +43,12 @@ class ActivityTable
                     ->label('Filtrar por Estado'),
             ])
             ->actions([
-                ViewAction::make(),
+                ViewAction::make()->label('Ver'),
             ])
             ->bulkActions([
                BulkActionGroup::make([
-                   DeleteBulkAction::make(),
-                ]),
+                   DeleteBulkAction::make()->label('Eliminar Seleccionados'),
+                ])->label('Acciones Masivas'),
             ])
              ->defaultSort('created_at', 'desc');
     }

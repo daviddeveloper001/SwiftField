@@ -15,9 +15,9 @@ class EditBooking extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            DeleteAction::make()->label('Eliminar'),
+            ForceDeleteAction::make()->label('Eliminar Permanentemente'),
+            RestoreAction::make()->label('Restaurar'),
         ];
     }
 }

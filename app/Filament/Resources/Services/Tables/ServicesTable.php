@@ -43,15 +43,15 @@ class ServicesTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+                    DeleteBulkAction::make()->label('Eliminar Seleccionados'),
+                    ForceDeleteBulkAction::make()->label('Eliminar Permanentemente'),
+                    RestoreBulkAction::make()->label('Restaurar Seleccionados'),
+                ])->label('Acciones Masivas'),
             ]);
     }
 }

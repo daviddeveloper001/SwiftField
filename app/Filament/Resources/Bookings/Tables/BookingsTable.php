@@ -74,9 +74,12 @@ class BookingsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()->label('Ver'),
+                EditAction::make()->label('Editar'),
                 Action::make('Convertir a Cita')
+                    ->label('Convertir a Cita')
+                    ->modalHeading('Convertir Cotización a Cita')
+                    ->modalSubmitActionLabel('Confirmar Conversión')
                     ->icon('heroicon-o-arrow-path')
                     ->color('warning')
                     ->visible(fn (Booking $record): bool => $record->status === BookingStatus::QuotationRequested)
@@ -135,10 +138,10 @@ class BookingsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
-                    RestoreBulkAction::make(),
-                ]),
+                    DeleteBulkAction::make()->label('Eliminar Seleccionados'),
+                    ForceDeleteBulkAction::make()->label('Eliminar Permanentemente'),
+                    RestoreBulkAction::make()->label('Restaurar Seleccionados'),
+                ])->label('Acciones Masivas'),
             ])
             ->headerActions([
                 ExportAction::make()
