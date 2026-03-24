@@ -14,6 +14,7 @@ class ServiceForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(2)
             ->components([
                 TextInput::make('name')
                     ->label('Nombre')
@@ -43,16 +44,19 @@ class ServiceForm
                 Toggle::make('is_active')
                     ->label('Activo')
                     ->required()
-                    ->default(true),
+                    ->default(true)
+                    ->inline(false),
                 Toggle::make('requires_quote')
                     ->label('Requiere Cotización')
                     ->helperText('Si se activa, el cliente pedirá un presupuesto en lugar de reservar una cita con fecha fija.')
-                    ->live(),
+                    ->live()
+                    ->columnSpanFull(),
                 TextInput::make('quote_label')
                     ->label('Etiqueta para detalles')
                     ->placeholder('Ej: Describe tu proyecto o ideas...')
                     ->visible(fn ($get) => $get('requires_quote'))
-                    ->required(fn ($get) => $get('requires_quote')),
+                    ->required(fn ($get) => $get('requires_quote'))
+                    ->columnSpanFull(),
                 Repeater::make('field_definitions')
                     ->label('Definición de Campos')
                     ->schema([

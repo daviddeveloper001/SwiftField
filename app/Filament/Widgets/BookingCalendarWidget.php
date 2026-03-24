@@ -37,6 +37,7 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
 
         return Booking::query()
             ->where('tenant_id', $tenant->id)
+            ->whereNotNull('scheduled_at')
             ->with(['customer', 'service'])
             ->get()
             ->map(
