@@ -154,14 +154,27 @@
                     @enderror
                 </div>
 
-                <!-- Date & Time -->
-                <div>
-                    <x-ui.label for="scheduled_at" value="Fecha y Hora de la Cita" />
-                    <x-ui.input type="datetime-local" wire:model="scheduled_at" id="scheduled_at" :error="$errors->has('scheduled_at')" />
-                    @error('scheduled_at')
-                        <span class="text-red-500 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
+                <!-- Date & Time (Conditional) -->
+                @if(!$selectedService->requires_quote)
+                    <div>
+                        <x-ui.label for="scheduled_at" value="Fecha y Hora de la Cita" />
+                        <x-ui.input type="datetime-local" wire:model="scheduled_at" id="scheduled_at" :error="$errors->has('scheduled_at')" />
+                        @error('scheduled_at')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @else
+                    <!-- Quote Field -->
+                    <div>
+                        <x-ui.label for="quote_text" :value="$selectedService->quote_label ?? 'Detalles de la solicitud'" />
+                        <textarea wire:model="quote_text" id="quote_text" rows="3"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary {{ $errors->has('quote_text') ? 'border-red-500' : '' }}"
+                            placeholder="Escribe aquí los detalles..."></textarea>
+                        @error('quote_text')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+                @endif
 
                 <!-- Location block with AlpineJS -->
                 <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
@@ -203,7 +216,7 @@
                     class="bg-gray-500 hover:bg-gray-600 focus:bg-gray-600 active:bg-gray-700">&larr;
                     Volver</x-ui.button>
                 <x-ui.button wire:click="submit" type="button"
-                    class="bg-primary hover:brightness-90 transition-all">Completar Reserva</x-ui.button>
+                    class="bg-primary hover:brightness-90 transition-all">{{ $selectedService->requires_quote ? 'Solicitar Presupuesto' : 'Completar Reserva' }}</x-ui.button>
             </div>
         </div>
     @endif

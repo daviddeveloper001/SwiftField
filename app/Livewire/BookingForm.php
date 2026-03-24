@@ -10,6 +10,7 @@ use App\Services\WhatsAppNotificationService;
 use App\DTOs\BookingDTO;
 use Illuminate\Support\Collection;
 use App\Models\Availability;
+use App\Enums\BookingStatus;
 
 class BookingForm extends Component
 {
@@ -21,10 +22,11 @@ class BookingForm extends Component
     public ?int $service_id = null;
     public string $customer_name = '';
     public string $customer_phone = '';
-    public string $scheduled_at = '';
+    public ?string $scheduled_at = null;
     public ?float $lat = null;
     public ?float $lng = null;
     public array $custom_values = [];
+    public string $quote_text = '';
 
     // Computed / Auxiliary
     public ?Service $selectedService = null;
@@ -91,36 +93,55 @@ class BookingForm extends Component
 
     public function submit(BookingService $bookingService)
     {
-        $this->validate([
+        $isQuote = $this->selectedService->requires_quote;
+
+        $rules = [
             'customer_name' => 'required|string|max:255',
             'customer_phone' => ['required', 'string', 'regex:/^3[0-9]{9}$/'],
-            'scheduled_at' => 'required|after:now',
-        ], [
-            'customer_name.required' => 'Tu nombre es obligatorio para completar la reserva.',
+        ];
+
+        $messages = [
+            'customer_name.required' => 'Tu nombre es obligatorio.',
             'customer_name.max' => 'El nombre no puede exceder los 255 caracteres.',
             'customer_phone.required' => 'El número de teléfono es obligatorio.',
-            'customer_phone.regex' => 'Por favor, ingresa un número celular válido de 10 dígitos (ej: 310 123 4567).',
-            'scheduled_at.required' => 'Debes seleccionar la fecha y hora de la cita.',
-            'scheduled_at.after' => 'La reserva debe programarse para una fecha u hora futura.',
-        ]);
+            'customer_phone.regex' => 'Número celular no válido (ej: 310 123 4567).',
+        ];
 
-        // Validation against business hours
-        $dt = new \DateTime($this->scheduled_at);
-        $dayOfWeek = (int) $dt->format('w');
-        $time = $dt->format('H:i');
-
-        $availability = Availability::where('tenant_id', $this->tenantId)
-            ->where('day_of_week', $dayOfWeek)
-            ->first();
-
-        if (!$availability || !$availability->is_open) {
-            $this->addError('scheduled_at', 'Lo sentimos, el negocio no atiende en ese día.');
-            return;
+        if ($isQuote) {
+            $rules['quote_text'] = 'required|string';
+            $messages['quote_text.required'] = "Por favor, especifica el detalle para '{$this->selectedService->quote_label}'.";
+        } else {
+            $rules['scheduled_at'] = 'required|after:now';
+            $messages['scheduled_at.required'] = 'Debes seleccionar la fecha y hora de la cita.';
+            $messages['scheduled_at.after'] = 'La reserva debe ser futura.';
         }
 
-        if ($time < $availability->start_time?->format('H:i') || $time > $availability->end_time?->format('H:i')) {
-            $this->addError('scheduled_at', 'Lo sentimos, el negocio no atiende en ese horario.');
-            return;
+        $this->validate($rules, $messages);
+
+        if (!$isQuote) {
+            // Business hours validation
+            $dt = new \DateTime($this->scheduled_at);
+            $dayOfWeek = (int) $dt->format('w');
+            $time = $dt->format('H:i');
+
+            $availability = Availability::where('tenant_id', $this->tenantId)
+                ->where('day_of_week', $dayOfWeek)
+                ->first();
+
+            if (!$availability || !$availability->is_open) {
+                $this->addError('scheduled_at', 'El negocio no atiende ese día.');
+                return;
+            }
+
+            if ($time < $availability->start_time?->format('H:i') || $time > $availability->end_time?->format('H:i')) {
+                $this->addError('scheduled_at', 'El negocio no atiende en ese horario.');
+                return;
+            }
+        }
+
+        $customValues = $this->custom_values;
+        if ($isQuote) {
+            $customValues['quote_details'] = $this->quote_text;
         }
 
         $dto = BookingDTO::fromArray([
@@ -130,10 +151,11 @@ class BookingForm extends Component
                 'name' => $this->customer_name,
                 'phone' => '57' . preg_replace('/[^0-9]/', '', $this->customer_phone),
             ],
-            'scheduled_at' => $this->scheduled_at,
+            'scheduled_at' => $isQuote ? null : $this->scheduled_at,
             'lat' => $this->lat,
             'lng' => $this->lng,
-            'custom_values' => $this->custom_values,
+            'custom_values' => $customValues,
+            'status' => $isQuote ? BookingStatus::QuotationRequested->value : BookingStatus::Pending->value,
         ]);
 
         $booking = $bookingService->createBooking($dto);
