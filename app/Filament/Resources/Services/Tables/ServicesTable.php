@@ -12,6 +12,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Filament\Actions\DeleteAction;
 
 class ServicesTable
 {
@@ -45,6 +46,7 @@ class ServicesTable
             ->recordActions([
                 ViewAction::make()->label('Ver'),
                 EditAction::make()->label('Editar'),
+                DeleteAction::make()->label('Eliminar'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
