@@ -145,7 +145,7 @@
                         <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 bg-gray-50 px-3 text-gray-500 sm:text-sm font-semibold">
                             +57
                         </span>
-                        <input x-data x-mask="999 999 9999" type="tel" wire:model="customer_phone" id="customer_phone"
+                        <input x-data x-mask="999 999 9999" type="tel" wire:model.live="customer_phone" id="customer_phone"
                             class="flex-1 block w-full rounded-none rounded-r-md focus:border-primary focus:ring-primary sm:text-sm {{ $errors->has('customer_phone') ? 'border-red-500' : 'border-gray-300' }}"
                             placeholder="310 123 4567" />
                     </div>

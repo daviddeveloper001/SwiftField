@@ -93,6 +93,9 @@ class BookingForm extends Component
 
     public function submit(BookingService $bookingService)
     {
+        // Sanitize phone before validation: remove spaces
+        $this->customer_phone = str_replace(' ', '', $this->customer_phone);
+
         $isQuote = $this->selectedService->requires_quote;
 
         $rules = [

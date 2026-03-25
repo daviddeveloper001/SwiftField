@@ -39,7 +39,9 @@ class Tenant extends ModelBase
 
     public function getWhatsappNumberAttribute(): ?string
     {
-        return $this->whatsapp_config['phone'] ?? $this->whatsapp_config['number'] ?? null;
+        $phone = $this->whatsapp_config['phone'] ?? $this->whatsapp_config['number'] ?? null;
+        if (empty($phone)) return $phone;
+        return str_starts_with($phone, '57') ? substr($phone, 2) : $phone;
     }
 
     public function hasValidSubscription(): bool

@@ -50,6 +50,11 @@ class Booking extends ModelBase
         return $this->belongsTo(Customer::class);
     }
 
+    public function getCustomerPhoneAttribute(): ?string
+    {
+        return $this->customer?->phone;
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

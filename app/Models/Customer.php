@@ -25,6 +25,10 @@ class Customer extends ModelBase
     protected function phone(): Attribute
     {
         return Attribute::make(
+            get: function (?string $value) {
+                if (empty($value)) return $value;
+                return str_starts_with($value, '57') ? substr($value, 2) : $value;
+            },
             set: function (?string $value) {
                 if (empty($value)) return $value;
                 $clean = preg_replace('/[^0-9]/', '', $value);

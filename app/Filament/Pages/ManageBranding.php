@@ -88,6 +88,12 @@ class ManageBranding extends Page implements HasForms
                             ->prefix('+57')
                             ->mask('999 999 9999')
                             ->stripCharacters(' ')
+                            ->afterStateHydrated(function (TextInput $component, $state) {
+                                if ($state && str_starts_with($state, '57')) {
+                                    $component->state(substr($state, 2));
+                                }
+                            })
+                            ->dehydrated(true)
                             ->rules(['regex:/^3[0-9]{9}$/'])
                             ->validationMessages([
                                 'regex' => 'Por favor, ingresa un número celular válido de 10 dígitos (ej: 310 123 4567)',
@@ -101,6 +107,12 @@ class ManageBranding extends Page implements HasForms
     public function save(): void
     {
         $tenant = auth()->user()->tenants()->first();
+        
+        // Remove spaces before validation
+        if (isset($this->data['phone'])) {
+            $this->data['phone'] = str_replace(' ', '', $this->data['phone']);
+        }
+
         $state = $this->form->getState();
 
         if (!$tenant) {
