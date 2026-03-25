@@ -27,6 +27,10 @@ class ServiceInfolist
                 TextEntry::make('description')
                     ->label('Descripción')
                     ->placeholder('-'),
+                TextEntry::make('duration_minutes')
+                    ->label('Duración')
+                    ->suffix('min')
+                    ->visible(fn ($record) => $record && !$record->requires_quote),
             ]);
     }
 }

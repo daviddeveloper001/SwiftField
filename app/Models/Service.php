@@ -14,6 +14,7 @@ class Service extends ModelBase
         'name',
         'slug',
         'price',
+        'duration_minutes',
         'field_definitions',
         'is_active',
         'description',

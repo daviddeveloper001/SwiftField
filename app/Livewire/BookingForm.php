@@ -22,7 +22,10 @@ class BookingForm extends Component
     public ?int $service_id = null;
     public string $customer_name = '';
     public string $customer_phone = '';
-    public ?string $scheduled_at = null;
+    public ?string $scheduled_at = null; // String final Y-m-d H:i
+    public ?string $selectedDate = null; // Y-m-d
+    public ?string $selectedTime = null; // H:i
+    public array $availableSlots = [];
     public ?float $lat = null;
     public ?float $lng = null;
     public array $custom_values = [];
@@ -36,6 +39,7 @@ class BookingForm extends Component
     {
         $this->tenantId = $tenantId;
         $this->services = Service::where('tenant_id', $this->tenantId)->where('is_active', true)->get();
+        $this->selectedDate = now()->format('Y-m-d');
     }
 
     public function updatedServiceId($value)
@@ -50,11 +54,37 @@ class BookingForm extends Component
             foreach ($this->fieldDefinitions as $field) {
                 $this->custom_values[$field['key'] ?? $field['name']] = ''; // default empty
             }
+            $this->loadAvailableSlots();
         } else {
             $this->selectedService = null;
             $this->fieldDefinitions = [];
             $this->custom_values = [];
+            $this->availableSlots = [];
         }
+    }
+
+    public function updatedSelectedDate()
+    {
+        $this->loadAvailableSlots();
+    }
+
+    public function loadAvailableSlots()
+    {
+        if ($this->service_id && $this->selectedDate) {
+            $this->availableSlots = app(\App\Services\Booking\AvailabilityService::class)
+                ->getAvailableSlots($this->service_id, $this->selectedDate);
+            
+            // Si el tiempo seleccionado ya no está disponible, lo limpiamos
+            if ($this->selectedTime && !in_array($this->selectedTime, $this->availableSlots)) {
+                $this->selectedTime = null;
+            }
+        }
+    }
+
+    public function selectTime($time)
+    {
+        $this->selectedTime = $time;
+        $this->scheduled_at = $this->selectedDate . ' ' . $this->selectedTime;
     }
 
     public function nextStep()
@@ -114,30 +144,22 @@ class BookingForm extends Component
             $rules['quote_text'] = 'required|string';
             $messages['quote_text.required'] = "Por favor, especifica el detalle para '{$this->selectedService->quote_label}'.";
         } else {
-            $rules['scheduled_at'] = 'required|after:now';
-            $messages['scheduled_at.required'] = 'Debes seleccionar la fecha y hora de la cita.';
-            $messages['scheduled_at.after'] = 'La reserva debe ser futura.';
+            $rules['selectedDate'] = 'required|date|after_or_equal:today';
+            $rules['selectedTime'] = 'required|string';
+            $messages['selectedDate.required'] = 'Debes seleccionar la fecha de la cita.';
+            $messages['selectedTime.required'] = 'Debes seleccionar una hora disponible.';
         }
 
         $this->validate($rules, $messages);
 
         if (!$isQuote) {
-            // Business hours validation
-            $dt = new \DateTime($this->scheduled_at);
-            $dayOfWeek = (int) $dt->format('w');
-            $time = $dt->format('H:i');
-
-            $availability = Availability::where('tenant_id', $this->tenantId)
-                ->where('day_of_week', $dayOfWeek)
-                ->first();
-
-            if (!$availability || !$availability->is_open) {
-                $this->addError('scheduled_at', 'El negocio no atiende ese día.');
-                return;
-            }
-
-            if ($time < $availability->start_time?->format('H:i') || $time > $availability->end_time?->format('H:i')) {
-                $this->addError('scheduled_at', 'El negocio no atiende en ese horario.');
+            // Re-validate slot availability (Sliding Window Check)
+            $available = app(\App\Services\Booking\AvailabilityService::class)
+                ->isSlotAvailable($this->service_id, $this->selectedDate, $this->selectedTime);
+            
+            if (!$available) {
+                $this->addError('selectedTime', 'Lo sentimos, este horario ya no está disponible. Por favor elige otro.');
+                $this->loadAvailableSlots();
                 return;
             }
         }

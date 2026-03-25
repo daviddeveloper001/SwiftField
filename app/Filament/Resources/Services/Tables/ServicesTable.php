@@ -33,6 +33,10 @@ class ServicesTable
                     ->label('Precio')
                     ->money()
                     ->sortable(),
+                TextColumn::make('duration_minutes')
+                    ->label('Duración')
+                    ->suffix('min')
+                    ->sortable(),
                 IconColumn::make('is_active')
                     ->label('Activo')
                     ->boolean(),

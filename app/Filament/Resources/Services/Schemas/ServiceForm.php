@@ -41,6 +41,14 @@ class ServiceForm
                     ->numeric()
                     ->default(0)
                     ->prefix('$'),
+                TextInput::make('duration_minutes')
+                    ->label('Duración (minutos)')
+                    ->required()
+                    ->numeric()
+                    ->default(60)
+                    ->suffix('min')
+                    ->helperText('Duración estimada para el agendamiento.')
+                    ->visible(fn ($get) => !$get('requires_quote')),
                 Toggle::make('is_active')
                     ->label('Activo')
                     ->required()
