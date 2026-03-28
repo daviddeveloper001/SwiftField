@@ -20,7 +20,8 @@
                             center: 'title',
                             right: 'dayGridMonth,timeGridWeek,timeGridDay'
                         },
-                        slotMinTime: '06:00:00',
+                        slotMinTime: @js($this->getMinTime()),
+                        scrollTime: @js($this->getMinTime()),
                         slotMaxTime: '22:00:00',
                         allDaySlot: false,
                         events: @js($this->fetchEvents()),

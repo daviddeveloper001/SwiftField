@@ -35,22 +35,52 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
             return [];
         }
 
-        return Booking::query()
+        $bookings = Booking::query()
             ->where('tenant_id', $tenant->id)
             ->whereNotNull('scheduled_at')
             ->with(['customer', 'service'])
-            ->get()
-            ->map(
+            ->get();
+
+        \Log::info('Cargando eventos para el calendario:', [
+            'tenant_id' => $tenant->id,
+            'count' => $bookings->count(),
+            'events' => $bookings->map(fn ($b) => [
+                'id' => $b->id,
+                'scheduled_at' => $b->scheduled_at->toIso8601String(),
+                'status' => $b->status,
+            ])->toArray()
+        ]);
+
+        return $bookings->map(
                 fn (Booking $booking) => [
                     'id' => $booking->id,
                     'title' => ($booking->customer?->name ?? 'Sin Cliente') . ' - ' . ($booking->service?->name ?? 'Sin Servicio'),
                     'start' => $booking->scheduled_at->toIso8601String(),
-                    'end' => $booking->scheduled_at->addHours(1)->toIso8601String(),
+                    'end' => $booking->scheduled_at->copy()->addHours(1)->toIso8601String(),
                     'backgroundColor' => $this->getEventColor($booking),
                     'borderColor' => $this->getEventColor($booking),
                 ]
             )
             ->all();
+    }
+
+    public function getMinTime(): string
+    {
+        $tenant = Filament::getTenant();
+        if (!$tenant) return '07:00:00';
+
+        $firstBooking = Booking::query()
+            ->where('tenant_id', $tenant->id)
+            ->whereNotNull('scheduled_at')
+            ->orderByRaw('CAST(scheduled_at AS TIME) ASC')
+            ->first();
+
+        if ($firstBooking) {
+            $hour = $firstBooking->scheduled_at->subHour()->format('H');
+            return "{$hour}:00:00";
+        }
+
+        return '07:00:00';
     }
 
     protected function getEventColor(Booking $booking): string
