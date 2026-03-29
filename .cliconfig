@@ -1,0 +1,11 @@
+# SwiftField Architectural Governance
+Siempre que realices una tarea, consulta el archivo `PROJECT_CONTEXT.md` para respetar roles, stack y flujo.
+
+## Reglas Críticas de Implementación:
+1. **No Magic Values:** Está prohibido usar strings o números "quemados" en el código. 
+   - Para estados: Usa Enums en `app/Enums`.
+   - Para configuraciones: Usa constantes en el Modelo o archivos de config.
+2. **Layered Architecture:** Respeta estrictamente el flujo `Request -> DTO -> Service -> Repository`.
+3. **Strict Typing:** Todo archivo PHP debe iniciar con `declare(strict_types=1);` y todas las propiedades/retornos deben estar tipados (PHP 8.3+).
+4. **Soft Deletes:** Obligatorio en las entidades core mencionadas en el Diccionario de Datos.
+5. **UUIDs:** Usa UUIDs para cualquier ID que se exponga en la URL o el Frontend.

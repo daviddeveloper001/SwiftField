@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Enums\DayOfWeek;
 use App\Models\Availability;
 use App\Models\Tenant;
 use Filament\Forms\Components\Repeater;
@@ -33,15 +34,9 @@ class ManageAvailability extends Page implements HasForms
 
     public ?array $data = [];
 
-    protected static array $days = [
-        0 => 'Domingo',
-        1 => 'Lunes',
-        2 => 'Martes',
-        3 => 'Miércoles',
-        4 => 'Jueves',
-        5 => 'Viernes',
-        6 => 'Sábado',
-    ];
+    const DEFAULT_START_TIME = '08:00';
+    const DEFAULT_END_TIME = '18:00';
+    const AVAILABILITIES_KEY = 'availabilities';
 
     public function mount(): void
     {
@@ -55,19 +50,19 @@ class ManageAvailability extends Page implements HasForms
             $formattedData = [];
 
             // Ensure all 7 days are present in the UI
-            foreach (static::$days as $dayIndex => $dayName) {
-                $availability = $availabilities->firstWhere('day_of_week', $dayIndex);
+            foreach (DayOfWeek::cases() as $day) {
+                $availability = $availabilities->firstWhere('day_of_week', $day->value);
                 
                 $formattedData[] = [
-                    'day_of_week' => $dayIndex,
-                    'day_name' => $dayName,
-                    'is_open' => $availability ? $availability->is_open : ($dayIndex != 0), // Default open except Sunday
-                    'start_time' => $availability ? $availability->start_time?->format('H:i') : '08:00',
-                    'end_time' => $availability ? $availability->end_time?->format('H:i') : '18:00',
+                    'day_of_week' => $day->value,
+                    'day_name' => $day->getLabel(),
+                    'is_open' => $availability ? $availability->is_open : $day->isOpenByDefault(),
+                    'start_time' => $availability ? $availability->start_time?->format('H:i') : self::DEFAULT_START_TIME,
+                    'end_time' => $availability ? $availability->end_time?->format('H:i') : self::DEFAULT_END_TIME,
                 ];
             }
 
-            $this->form->fill(['availabilities' => $formattedData]);
+            $this->form->fill([self::AVAILABILITIES_KEY => $formattedData]);
         }
     }
 
@@ -78,7 +73,7 @@ class ManageAvailability extends Page implements HasForms
                 Section::make('Configuración Semanal')
                     ->description('Define los días y horas en los que tu negocio está disponible para recibir reservas.')
                     ->schema([
-                        Repeater::make('availabilities')
+                        Repeater::make(self::AVAILABILITIES_KEY)
                             ->label('Días de la semana')
                             ->schema([
                                 Grid::make(4)
@@ -120,7 +115,7 @@ class ManageAvailability extends Page implements HasForms
             return;
         }
 
-        foreach ($state['availabilities'] as $dayData) {
+        foreach ($state[self::AVAILABILITIES_KEY] as $dayData) {
             Availability::updateOrCreate(
                 [
                     'tenant_id' => $tenant->id,
