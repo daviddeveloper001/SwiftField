@@ -23,8 +23,9 @@ class SuperAdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id('superadmin')
+            ->id('super_admin')
             ->path('superadmin')
+            ->authGuard('superadmin')
             ->login()
             ->brandName('SwiftField Admin')
             ->colors([

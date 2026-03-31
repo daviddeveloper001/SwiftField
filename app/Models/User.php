@@ -40,7 +40,15 @@ class User extends Authenticatable implements HasTenants, FilamentUser
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        if ($panel->getId() === 'super_admin') {
+            return $this->is_super_admin === true;
+        }
+
+        if ($panel->getId() === 'admin') {
+            return !$this->is_super_admin && $this->tenants()->exists();
+        }
+
+        return false;
     }
 
     /**
@@ -52,6 +60,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
         'name',
         'email',
         'password',
+        'is_super_admin',
     ];
 
     /**
@@ -74,6 +83,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
         ];
     }
 
