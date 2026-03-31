@@ -71,6 +71,7 @@ class ManageBranding extends Page implements HasForms
                             ->required(),
                         FileUpload::make('logo_url')
                             ->label('Logo del Negocio')
+                            ->disk('public')
                             ->directory('tenant_logos')
                             ->image()
                             ->maxSize(1024)

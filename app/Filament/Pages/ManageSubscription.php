@@ -67,6 +67,7 @@ class ManageSubscription extends Page implements HasForms
                         FileUpload::make('payment_proof')
                             ->label('Comprobante')
                             ->image()
+                            ->disk('public')
                             ->directory('proofs')
                             ->required()
                             ->afterStateUpdated(function ($state) {

@@ -16,14 +16,13 @@
 
 <body class="client-layout bg-gray-50 min-h-screen flex flex-col">
     <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-3 py-4">
                 @if ($tenant->branding_config['logo_url'] ?? false)
-                    <img src="{{ Storage::url($tenant->branding_config['logo_url']) }}" alt="{{ $tenant->name }}"
+                    <img src="{{ Storage::disk('public')->url($tenant->branding_config['logo_url']) }}" alt="{{ $tenant->name }}"
                         class="h-10 w-auto">
                 @else
                     <div
-                        class="h-10 w-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                        class="h-10 w-10 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-sm">
                         {{ substr($tenant->name, 0, 1) }}
                     </div>
                 @endif

@@ -41,16 +41,6 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
             ->with(['customer', 'service'])
             ->get();
 
-        \Log::info('Cargando eventos para el calendario:', [
-            'tenant_id' => $tenant->id,
-            'count' => $bookings->count(),
-            'events' => $bookings->map(fn ($b) => [
-                'id' => $b->id,
-                'scheduled_at' => $b->scheduled_at->toIso8601String(),
-                'status' => $b->status,
-            ])->toArray()
-        ]);
-
         return $bookings->map(
                 fn (Booking $booking) => [
                     'id' => $booking->id,
@@ -86,10 +76,10 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
     protected function getEventColor(Booking $booking): string
     {
         return match ($booking->status) {
-            BookingStatus::Confirmed => '#10b981', // green
-            BookingStatus::Pending => '#f59e0b',  // orange
-            BookingStatus::Cancelled => '#ef4444', // red
-            default => '#3b82f6', // blue
+            BookingStatus::Confirmed => '#10b981',
+            BookingStatus::Pending => '#f59e0b',
+            BookingStatus::Cancelled => '#ef4444',
+            default => '#3b82f6',
         };
     }
     
