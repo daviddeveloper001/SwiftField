@@ -1,11 +1,12 @@
 # SwiftField Architectural Governance
-Siempre que realices una tarea, consulta el archivo `PROJECT_CONTEXT.md` para respetar roles, stack y flujo.
+Consulta `PROJECT_CONTEXT.md` antes de cada tarea. No asumas soluciones estándar si violan la arquitectura de capas.
 
-## Reglas Críticas de Implementación:
-1. **No Magic Values:** Está prohibido usar strings o números "quemados" en el código. 
-   - Para estados: Usa Enums en `app/Enums`.
-   - Para configuraciones: Usa constantes en el Modelo o archivos de config.
-2. **Layered Architecture:** Respeta estrictamente el flujo `Request -> DTO -> Service -> Repository`.
-3. **Strict Typing:** Todo archivo PHP debe iniciar con `declare(strict_types=1);` y todas las propiedades/retornos deben estar tipados (PHP 8.3+).
-4. **Soft Deletes:** Obligatorio en las entidades core mencionadas en el Diccionario de Datos.
-5. **UUIDs:** Usa UUIDs para cualquier ID que se exponga en la URL o el Frontend.
+## Reglas Innegociables:
+1. **Zero Magic Values:** Prohibido usar strings/numbers quemados. Uso obligatorio de `App\Enums` o Config.
+2. **Abstracción Total:** Si la tarea implica un servicio externo, propón primero una `Interface` y un `Driver`.
+3. **Strict Typing:** `declare(strict_types=1);` en todo archivo. Retornos y parámetros 100% tipados.
+4. **Result Objects:** Los métodos de Service deben retornar una estructura consistente de éxito/error.
+5. **Security First:** - UUIDs para frontend.
+    - Sesiones aisladas por Guard.
+    - Soft Deletes en entidades core.
+6. **Path-Based Routing:** Todas las rutas de tenant deben respetar el prefijo `{tenant_slug}`.
