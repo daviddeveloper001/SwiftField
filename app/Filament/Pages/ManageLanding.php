@@ -3,11 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Models\Tenant;
-use Filament\Forms\Components\ColorPicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -15,7 +13,6 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use BackedEnum;
-
 use Filament\Forms\Components\ToggleButtons;
 
 class ManageLanding extends Page implements HasForms
@@ -37,13 +34,9 @@ class ManageLanding extends Page implements HasForms
         $tenant = auth()->user()->tenants()->first();
 
         if ($tenant) {
-            // Leemos el objeto completo de la tabla tenant_settings
             $config = $tenant->getSetting('landing_config', []);
             
-            // Llenamos el formulario asegurando que las llaves existan
             $this->form->fill([
-                'primary_color' => $config['primary_color'] ?? '#3b82f6',
-                'secondary_color' => $config['secondary_color'] ?? '#1e40af',
                 'sections' => $config['sections'] ?? [],
             ]);
         }
@@ -53,20 +46,6 @@ class ManageLanding extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('Identidad Visual')
-                    ->description('Define los colores base que se aplicarán a toda tu landing page.')
-                    ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                ColorPicker::make('primary_color')
-                                    ->label('Color Primario')
-                                    ->required(),
-                                ColorPicker::make('secondary_color')
-                                    ->label('Color Secundario')
-                                    ->required(),
-                            ]),
-                    ]),
-
                 Section::make('Estructura de la Página')
                     ->description('Añade, elimina y reordena las secciones de tu página de aterrizaje.')
                     ->schema([
@@ -127,8 +106,6 @@ class ManageLanding extends Page implements HasForms
 
         if (!$tenant) return;
 
-        // Limpiamos los índices del repeater antes de guardar (array_values)
-        // para asegurar un JSON limpio en la base de datos
         $formattedSections = collect($state['sections'] ?? [])
             ->values()
             ->map(function ($item, $index) {
@@ -140,17 +117,14 @@ class ManageLanding extends Page implements HasForms
             })
             ->toArray();
 
-        // Persistencia ATÓMICA en tenant_settings. landing_config es la única verdad.
         $tenant->setSetting('landing_config', [
             'theme_id' => 'default',
-            'primary_color' => $state['primary_color'],
-            'secondary_color' => $state['secondary_color'],
             'sections' => $formattedSections,
         ]);
 
         Notification::make()
-            ->title('Diseño actualizado en Tenant Settings')
-            ->body('Los cambios se han guardado exclusivamente en la nueva estructura de configuraciones.')
+            ->title('Estructura actualizada')
+            ->body('Los cambios en las secciones se han guardado.')
             ->success()
             ->send();
     }

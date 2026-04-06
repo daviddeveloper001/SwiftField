@@ -39,33 +39,28 @@ class Tenant extends ModelBase
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
     ];
+/**
+ * Accessor para Branding Centralizado (Colores, Logo)
+ */
+public function getBrandingConfigAttribute(): array
+{
+    return $this->getSetting('branding_config', [
+        'primary_color' => '#3b82f6',
+        'secondary_color' => '#1e40af',
+        'logo_url' => null,
+    ]);
+}
 
-    /**
-     * Accessors para mantener compatibilidad con el código que aún usa $tenant->config_name
-     */
-    public function getWhatsappConfigAttribute(): ?array
-    {
-        return $this->getSetting('whatsapp_config', []);
-    }
-
-    public function getBrandingConfigAttribute(): ?array
-    {
-        return $this->getSetting('branding_config', []);
-    }
-
-    public function getLandingConfigAttribute(): array
-    {
-        return $this->getSetting('landing_config', [
-            'theme_id' => 'default',
-            'primary_color' => '#3b82f6',
-            'secondary_color' => '#1e40af',
-            'sections' => [
-                ['type' => 'hero', 'order' => 1, 'content' => ['title' => 'Bienvenido a ' . $this->name]],
-                ['type' => 'services', 'order' => 2, 'content' => []],
-            ],
-        ]);
-    }
-
+public function getLandingConfigAttribute(): array
+{
+    return $this->getSetting('landing_config', [
+        'theme_id' => 'default',
+        'sections' => [
+            ['type' => 'hero', 'order' => 1, 'content' => ['title' => 'Bienvenido a ' . $this->name]],
+            ['type' => 'services', 'order' => 2, 'content' => []],
+        ],
+    ]);
+}
     public function getWhatsappNumberAttribute(): ?string
     {
         $config = $this->whatsapp_config;

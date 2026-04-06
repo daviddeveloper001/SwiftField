@@ -10,9 +10,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
         
         :root {
-            --primary-color: {{ $config->primary_color ?? '#3b82f6' }};
-            --secondary-color: {{ $config->secondary_color ?? '#1e40af' }};
-            --primary-light: {{ ($config->primary_color ?? '#3b82f6') }}15;
+            --primary-color: {{ $tenant->branding_config['primary_color'] ?? '#3b82f6' }};
+            --secondary-color: {{ $tenant->branding_config['secondary_color'] ?? '#1e40af' }};
+            --primary-light: {{ ($tenant->branding_config['primary_color'] ?? '#3b82f6') }}15;
         }
 
         body { font-family: 'Inter', sans-serif; }
@@ -32,6 +32,28 @@
 </head>
 <body class="bg-white text-slate-900 antialiased bg-premium-gradient min-h-screen relative">
     <div class="fixed inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none"></div>
+
+    <!-- Header Profesional -->
+    <header class="fixed top-4 inset-x-4 z-50">
+        <nav class="max-w-7xl mx-auto backdrop-blur-lg bg-white/70 border border-white/20 rounded-2xl px-6 py-3 shadow-xl flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                @if($tenant->branding_config['logo_url'])
+                    <img src="{{ Storage::url($tenant->branding_config['logo_url']) }}" alt="{{ $tenant->name }}" class="h-10 w-auto rounded-lg object-contain">
+                @else
+                    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black text-xl shadow-lg shadow-primary/20">
+                        {{ strtoupper(substr($tenant->name, 0, 1)) }}
+                    </div>
+                @endif
+                <span class="font-extrabold tracking-tight text-slate-900 hidden sm:block">{{ $tenant->name }}</span>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <a href="#booking" class="bg-primary text-white px-5 py-2 rounded-xl text-sm font-bold shadow-lg shadow-primary/25 hover:scale-105 transition-all">
+                    Agendar Cita
+                </a>
+            </div>
+        </nav>
+    </header>
 
     <div id="landing-engine" class="relative z-10" x-data="{ 
         init() {

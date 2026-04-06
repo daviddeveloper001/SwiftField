@@ -18,11 +18,13 @@ use Illuminate\Support\Facades\Storage;
 use BackedEnum;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Schemas\Components\Grid;
 
 class ManageBranding extends Page implements HasForms
 {
     use InteractsWithForms;
-    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-paint-brush';
+    
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-swatch';
 
     protected static ?string $navigationLabel = 'Personalización';
 
@@ -37,10 +39,14 @@ class ManageBranding extends Page implements HasForms
         $tenant = auth()->user()->tenants()->first();
 
         if ($tenant) {
+            $branding = $tenant->getSetting('branding_config', []);
+            $whatsapp = $tenant->getSetting('whatsapp_config', []);
+            
             $this->form->fill([
-                'primary_color' => $tenant->branding_config['primary_color'] ?? '#fbbf24',
-                'logo_url' => $tenant->branding_config['logo_url'] ?? null,
-                'phone' => $tenant->whatsapp_config['phone'] ?? $tenant->whatsapp_config['number'] ?? '',
+                'logo_url' => $branding['logo_url'] ?? null,
+                'primary_color' => $branding['primary_color'] ?? '#3b82f6',
+                'secondary_color' => $branding['secondary_color'] ?? '#1e40af',
+                'phone' => $whatsapp['phone'] ?? '',
             ]);
         }
     }
@@ -64,25 +70,33 @@ class ManageBranding extends Page implements HasForms
         return $form
             ->schema([
                 Section::make('Identidad Visual')
-                    ->description('Configura los colores y el logotipo que verán tus clientes.')
+                    ->description('Configura los colores y el logotipo corporativo.')
                     ->schema([
-                        ColorPicker::make('primary_color')
-                            ->label('Color Principal')
-                            ->required(),
-                        FileUpload::make('logo_url')
-                            ->label('Logo del Negocio')
-                            ->disk('public')
-                            ->directory('tenant_logos')
-                            ->image()
-                            ->maxSize(1024)
-                            ->imageResizeMode('cover')
-                            ->imageCropAspectRatio('1:1')
-                            ->imageResizeTargetWidth('200')
-                            ->imageResizeTargetHeight('200'),
-                    ])->columns(2),
+                        Grid::make(3)
+                            ->schema([
+                                FileUpload::make('logo_url')
+                                    ->label('Logotipo')
+                                    ->image()
+                                    ->directory('tenant-logos')
+                                    ->imageEditor()
+                                    ->avatar()
+                                    ->columnSpan(1),
+                                
+                                Grid::make(1)
+                                    ->schema([
+                                        ColorPicker::make('primary_color')
+                                            ->label('Color Primario')
+                                            ->required(),
+                                        ColorPicker::make('secondary_color')
+                                            ->label('Color Secundario')
+                                            ->required(),
+                                    ])
+                                    ->columnSpan(2),
+                            ]),
+                    ]),
 
                 Section::make('Comunicación')
-                    ->description('Datos de contacto para el botón de WhatsApp.')
+                    ->description('Datos de contacto para integraciones (WhatsApp).')
                     ->schema([
                         TextInput::make('phone')
                             ->label('Número de WhatsApp')
@@ -94,11 +108,6 @@ class ManageBranding extends Page implements HasForms
                                     $component->state(substr($state, 2));
                                 }
                             })
-                            ->dehydrated(true)
-                            ->rules(['regex:/^3[0-9]{9}$/'])
-                            ->validationMessages([
-                                'regex' => 'Por favor, ingresa un número celular válido de 10 dígitos (ej: 310 123 4567)',
-                            ])
                             ->required(),
                     ]),
             ])
@@ -108,40 +117,26 @@ class ManageBranding extends Page implements HasForms
     public function save(): void
     {
         $tenant = auth()->user()->tenants()->first();
-        
-        // Remove spaces before validation
-        if (isset($this->data['phone'])) {
-            $this->data['phone'] = str_replace(' ', '', $this->data['phone']);
-        }
-
         $state = $this->form->getState();
 
-        if (!$tenant) {
-            return;
-        }
+        if (!$tenant) return;
 
-        // Cleanup old logo if a new one is uploaded or deleted
-        $oldLogo = $tenant->branding_config['logo_url'] ?? null;
-        if ($oldLogo && $oldLogo !== $state['logo_url']) {
-            Storage::disk('public')->delete($oldLogo);
-        }
+        // 1. Guardar Branding Centralizado
+        $tenant->setSetting('branding_config', [
+            'primary_color' => $state['primary_color'],
+            'secondary_color' => $state['secondary_color'],
+            'logo_url' => $state['logo_url'],
+        ]);
 
-        // Prepend 57 before saving to DB
+        // 2. Guardar WhatsApp Config
         $cleanPhone = preg_replace('/[^0-9]/', '', $state['phone']);
-        $finalPhone = '57' . $cleanPhone;
-
-        $tenant->update([
-            'branding_config' => [
-                'primary_color' => $state['primary_color'],
-                'logo_url' => $state['logo_url'],
-            ],
-            'whatsapp_config' => [
-                'phone' => $finalPhone,
-            ],
+        $tenant->setSetting('whatsapp_config', [
+            'phone' => '57' . $cleanPhone,
         ]);
 
         Notification::make()
-            ->title('Configuración guardada')
+            ->title('Identidad actualizada')
+            ->body('Los cambios se han aplicado a todo el sistema.')
             ->success()
             ->send();
     }
