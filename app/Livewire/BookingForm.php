@@ -11,6 +11,7 @@ use App\DTOs\BookingDTO;
 use Illuminate\Support\Collection;
 use App\Models\Availability;
 use App\Enums\BookingStatus;
+use Livewire\Attributes\On;
 
 class BookingForm extends Component
 {
@@ -34,6 +35,22 @@ class BookingForm extends Component
     // Computed / Auxiliary
     public ?Service $selectedService = null;
     public array $fieldDefinitions = [];
+
+    /**
+     * Listener para selección externa desde la Landing (Dynamic Landing Engine)
+     */
+    #[On('service-selected')]
+    public function selectService(int $id): void
+    {
+        $this->service_id = $id;
+        $this->updatedServiceId($id);
+        
+        // Avanzamos al paso 2 (Calendario/Detalles)
+        $this->step = 2;
+
+        // Disparamos scroll suave en el frontend
+        $this->dispatch('scroll-to-booking');
+    }
 
     public function mount(int $tenantId)
     {

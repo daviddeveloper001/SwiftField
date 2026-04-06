@@ -8,11 +8,18 @@ use Spatie\Activitylog\LogOptions;
 
 use App\Traits\HasTenantSettings;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Tenant extends ModelBase
 {
     use LogsActivity, HasTenantSettings;
 
     protected $table = 'tenants';
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
 
     protected $fillable = [
         'uuid',
@@ -46,9 +53,17 @@ class Tenant extends ModelBase
         return $this->getSetting('branding_config', []);
     }
 
-    public function getLandingConfigAttribute(): ?array
+    public function getLandingConfigAttribute(): array
     {
-        return $this->getSetting('landing_config', []);
+        return $this->getSetting('landing_config', [
+            'theme_id' => 'default',
+            'primary_color' => '#3b82f6',
+            'secondary_color' => '#1e40af',
+            'sections' => [
+                ['type' => 'hero', 'order' => 1, 'content' => ['title' => 'Bienvenido a ' . $this->name]],
+                ['type' => 'services', 'order' => 2, 'content' => []],
+            ],
+        ]);
     }
 
     public function getWhatsappNumberAttribute(): ?string
