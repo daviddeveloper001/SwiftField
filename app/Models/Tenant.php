@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 
+use App\Traits\HasTenantSettings;
+
 class Tenant extends ModelBase
 {
-    use LogsActivity;
+    use LogsActivity, HasTenantSettings;
 
     protected $table = 'tenants';
 
@@ -17,9 +19,6 @@ class Tenant extends ModelBase
         'name',
         'slug',
         'domain',
-        'branding_config',
-        'landing_config',
-        'whatsapp_config',
         'is_active',
         'subscription_status',
         'trial_ends_at',
@@ -28,18 +27,35 @@ class Tenant extends ModelBase
     ];
 
     protected $casts = [
-        'branding_config' => 'array',
-        'landing_config' => 'array',
-        'whatsapp_config' => 'array',
         'is_active' => 'boolean',
         'subscription_status' => \App\Enums\SubscriptionStatus::class,
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
     ];
 
+    /**
+     * Accessors para mantener compatibilidad con el código que aún usa $tenant->config_name
+     */
+    public function getWhatsappConfigAttribute(): ?array
+    {
+        return $this->getSetting('whatsapp_config', []);
+    }
+
+    public function getBrandingConfigAttribute(): ?array
+    {
+        return $this->getSetting('branding_config', []);
+    }
+
+    public function getLandingConfigAttribute(): ?array
+    {
+        return $this->getSetting('landing_config', []);
+    }
+
     public function getWhatsappNumberAttribute(): ?string
     {
-        $phone = $this->whatsapp_config['phone'] ?? $this->whatsapp_config['number'] ?? null;
+        $config = $this->whatsapp_config;
+        $phone = $config['phone'] ?? $config['number'] ?? null;
+        
         if (empty($phone)) return $phone;
         return str_starts_with($phone, '57') ? substr($phone, 2) : $phone;
     }
@@ -77,16 +93,12 @@ class Tenant extends ModelBase
 
     protected static function booted()
     {
-        static::saving(function ($tenant) {
-            $config = $tenant->whatsapp_config;
-            if (is_array($config) && isset($config['phone'])) {
-                $clean = preg_replace('/[^0-9]/', '', $config['phone']);
-                if (!empty($clean) && !str_starts_with($clean, '57')) {
-                    $clean = '57' . $clean;
-                }
-                $config['phone'] = $clean;
-                $tenant->whatsapp_config = $config;
-            }
-        });
+        // Limpiamos la lógica legacy del booted ya que no hay columnas que sincronizar
+        // Una vez que corras la migración destructiva, este modelo estará perfectamente alineado
+    }
+
+    public function getDurationAttribute(): ?int
+    {
+        return $this->getSetting('default_service_duration', null);
     }
 }

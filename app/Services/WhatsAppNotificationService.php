@@ -89,7 +89,7 @@ class WhatsAppNotificationService
         $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
         $scheduledAt = $booking->scheduled_at->format('d M Y - h:i A');
 
-        $message = "¡Hola {$customer->name}! 👋 Soy de {$tenant->name}. Te confirmo que tu servicio de {$service->name} para el día {$scheduledAt} ha sido CONFIRMADO. ¡Nos vemos pronto!";
+        $message = "¡Hola {$customer->name}! 👋 Soy de {$tenant->name}. Te confirmo que tu servicio de {$service->name} para el día {$scheduledAt}, duración del servicio {$tenant->duration} minutos, ha sido CONFIRMADO. ¡Nos vemos pronto!";
 
         if ($booking->lat && $booking->lng) {
             $message .= "\n\n📍 Ubicación registrada:\n";

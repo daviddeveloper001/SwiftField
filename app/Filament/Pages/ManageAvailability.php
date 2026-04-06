@@ -62,7 +62,12 @@ class ManageAvailability extends Page implements HasForms
                 ];
             }
 
-            $this->form->fill([self::AVAILABILITIES_KEY => $formattedData]);
+            $this->form->fill([
+                self::AVAILABILITIES_KEY => $formattedData,
+                'booking_slot_size' => $tenant->getSetting('booking_slot_size'),
+                'default_service_duration' => $tenant->getSetting('default_service_duration'),
+                'buffer_time_between_bookings' => $tenant->getSetting('buffer_time_between_bookings'),
+            ]);
         }
     }
 
@@ -70,6 +75,36 @@ class ManageAvailability extends Page implements HasForms
     {
         return $form
             ->schema([
+                Section::make('Configuración de Agenda')
+                    ->description('Define cómo se divide el tiempo en tu calendario y la duración por defecto de tus servicios.')
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('booking_slot_size')
+                                    ->label('Tamaño del Intervalo (min)')
+                                    ->helperText('Ej: 15 min para citas rápidas, 60 min para sesiones largas.')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('min')
+                                    ->minValue(5)
+                                    ->maxValue(120),
+                                TextInput::make('default_service_duration')
+                                    ->label('Duración del Servicio (min)')
+                                    ->helperText('Tiempo promedio que dura un servicio.')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('min')
+                                    ->minValue(5),
+                                TextInput::make('buffer_time_between_bookings')
+                                    ->label('Tiempo de Buffer (min)')
+                                    ->helperText('Tiempo de descanso o preparación entre citas.')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('min')
+                                    ->minValue(0),
+                            ]),
+                    ]),
+
                 Section::make('Configuración Semanal')
                     ->description('Define los días y horas en los que tu negocio está disponible para recibir reservas.')
                     ->schema([
@@ -115,6 +150,12 @@ class ManageAvailability extends Page implements HasForms
             return;
         }
 
+        // Guardar Jerarquía de Tiempos
+        $tenant->setSetting('booking_slot_size', (int) $state['booking_slot_size']);
+        $tenant->setSetting('default_service_duration', (int) $state['default_service_duration']);
+        $tenant->setSetting('buffer_time_between_bookings', (int) $state['buffer_time_between_bookings']);
+
+        // Guardar Disponibilidad Semanal
         foreach ($state[self::AVAILABILITIES_KEY] as $dayData) {
             Availability::updateOrCreate(
                 [
