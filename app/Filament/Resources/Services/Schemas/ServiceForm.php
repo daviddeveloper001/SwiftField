@@ -4,7 +4,7 @@ namespace App\Filament\Resources\Services\Schemas;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -32,8 +32,15 @@ class ServiceForm
                         modifyRuleUsing: fn (\Illuminate\Validation\Rules\Unique $rule) => $rule->where('tenant_id', auth()->user()->tenant_id)
                     )
                     ->columnSpanFull(),
-                Textarea::make('description')
+                RichEditor::make('description')
                     ->label('Descripción')
+                    ->toolbarButtons([
+                        'bold',
+                        'italic',
+                        'bulletList',
+                        'undo',
+                        'redo',
+                    ])
                     ->columnSpanFull(),
                 TextInput::make('price')
                     ->label('Precio')
@@ -83,7 +90,6 @@ class ServiceForm
                                 'select' => 'Selección',
                             ])
                             ->required(),
-                        // Aquí podríamos agregar lógica para opciones si el tipo es select
                     ])
                     ->columnSpanFull()
                     ->columns(3),

@@ -1,3 +1,43 @@
+<style>
+    .prose-services {
+        font-size: 0.875rem;
+    }
+    .prose-services ul {
+        list-style: none !important;
+        padding: 0 !important;
+        margin: 1rem 0 !important;
+    }
+    .prose-services li {
+        position: relative;
+        padding-left: 1.75rem;
+        margin-bottom: 0.75rem;
+        color: #475569; /* text-slate-600 */
+        line-height: 1.625; /* leading-relaxed */
+    }
+    .prose-services li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0.25rem;
+        width: 1.1rem;
+        height: 1.1rem;
+        background-color: var(--primary-color, #0ea5e9);
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M5 13l4 4L19 7' /%3E%3C/svg%3E");
+        -webkit-mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+    }
+    .prose-services p {
+        margin-bottom: 1rem;
+    }
+    .prose-services b, .prose-services strong {
+        font-weight: 700;
+        color: #0f172a; /* text-slate-900 */
+    }
+</style>
+
 <section id="services-{{ $order }}" class="py-24 relative z-10 fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
@@ -16,14 +56,17 @@
                     </div>
 
                     <h3 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight">{{ $service->name }}</h3>
-                    <p class="text-slate-600 leading-relaxed mb-8 flex-grow line-clamp-3">{{ $service->description }}</p>
+                    
+                    <div class="prose-services mb-8 flex-grow">
+                        {!! strip_tags($service->description, '<p><ul><li><b><i><strong><em>') !!}
+                    </div>
 
                     <div class="flex items-center justify-between mt-auto pt-6 border-t border-slate-100">
                         <div class="flex flex-col">
                             <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Inversión</span>
                             <span class="text-3xl font-extrabold text-primary">${{ number_format($service->price, 0, ',', '.') }}</span>
                         </div>
-                        <button 
+                        <button
                            type="button"
                            onclick="Livewire.dispatch('service-selected', { id: {{ $service->id }} })"
                            class="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-primary transition-all shadow-lg hover:shadow-primary/30 cursor-pointer active:scale-95">
