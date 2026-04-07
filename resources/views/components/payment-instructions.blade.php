@@ -1,3 +1,10 @@
+@php
+    $nequi = App\Services\PlatformSettings::get('nequi_number');
+    $bancolombia = App\Services\PlatformSettings::get('bancolombia_account');
+    $holder = App\Services\PlatformSettings::get('account_holder');
+    $message = App\Services\PlatformSettings::get('activation_message');
+@endphp
+
 <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
     <div class="flex items-start space-x-3">
         <div class="flex-shrink-0">
@@ -10,12 +17,12 @@
         <div>
             <h4 class="text-sm font-semibold text-gray-900">Transferencia Bancaria</h4>
             <div class="mt-2 space-y-1 text-sm text-gray-600">
-                <p><strong>Nequi:</strong> 300 000 0000</p>
-                <p><strong>Bancolombia:</strong> Ahorros 123-456789-00</p>
-                <p><strong>Titular:</strong> SwiftField Team</p>
+                <p><strong>Nequi:</strong> {{ $nequi }}</p>
+                <p><strong>Bancolombia:</strong> {{ $bancolombia }}</p>
+                <p><strong>Titular:</strong> {{ $holder }}</p>
             </div>
             <div class="mt-4 p-2 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 text-xs">
-                ⚠️ Una vez realizado el pago, sube el comprobante abajo. Tu servicio será activado en menos de 2 horas.
+                {{ $message }}
             </div>
         </div>
     </div>
