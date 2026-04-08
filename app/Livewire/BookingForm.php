@@ -183,7 +183,7 @@ class BookingForm extends Component
 
         $customValues = $this->custom_values;
         if ($isQuote) {
-            $customValues['quote_details'] = $this->quote_text;
+            $customValues['detalles_de_la_solicitud'] = $this->quote_text;
         }
 
         $dto = BookingDTO::fromArray([
