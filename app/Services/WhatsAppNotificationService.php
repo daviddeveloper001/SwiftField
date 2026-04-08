@@ -12,6 +12,16 @@ class WhatsAppNotificationService
     use FormatCustomValues;
 
     /**
+     * Sanitiza el número de teléfono para enlaces de WhatsApp.
+     */
+    private function sanitizePhone(?string $phone): string
+    {
+        if (!$phone) return '';
+        // Elimina espacios, guiones, signos '+' y cualquier otro caracter no numérico
+        return preg_replace('/[^0-9]/', '', $phone);
+    }
+
+    /**
      * Generate the WhatsApp URL for the inbound message (Client to Owner).
      * Used by the booking form to send the request to the proprietor.
      *
@@ -27,23 +37,31 @@ class WhatsAppNotificationService
         $service = $booking->service;
         $customer = $booking->customer;
 
-        $phone = $tenant->whatsapp_config['phone'] ?? '';
+        // Recuperar configuración de WhatsApp desde el modelo Tenant (que usa settings)
+        $config = $tenant->whatsapp_config;
+        $phone = $this->sanitizePhone($config['phone'] ?? null);
         
-        // Strip any non-numeric characters for valid wa.me links
-        $phone = preg_replace('/[^0-9]/', '', $phone);
+        // Fallback al número de soporte si no hay número de tenant
+        if (empty($phone)) {
+            $phone = $this->sanitizePhone(config('app.support_whatsapp', '573000000000'));
+        }
 
-        $scheduledAt = $booking->scheduled_at 
+        $isQuote = $booking->scheduled_at === null;
+        $typeLabel = $isQuote ? 'SOLICITUD DE COTIZACIÓN' : 'NUEVA RESERVA DE CITA';
+
+        $scheduledAt = !$isQuote 
             ? $booking->scheduled_at->format('d M Y - h:i A') 
             : 'Por confirmar';
 
-        $message = "Hola, he generado un nuevo requerimiento para el servicio de *{$service->name}*.\n\n";
+        $message = "✨ *{$typeLabel}* ✨\n\n";
+        $message .= "Hola *{$tenant->name}*, he generado un nuevo requerimiento a través de SwiftField.\n\n";
         
-        $message .= "🗓️ *Agendamiento:*\n";
-        $message .= "{$scheduledAt}\n\n";
+        $message .= "🛠️ *Servicio:* {$service->name}\n";
+        $message .= "📅 *Fecha/Hora:* {$scheduledAt}\n\n";
 
-        $message .= "👤 *Mis Datos:*\n";
-        $message .= "- Nombre: {$customer->name}\n";
-        $message .= "- Teléfono: {$customer->phone}\n";
+        $message .= "👤 *Datos del Cliente:*\n";
+        $message .= "- *Nombre:* {$customer->name}\n";
+        $message .= "- *Teléfono:* {$customer->phone}\n";
         
         if (!empty($booking->custom_values)) {
             $message .= "\n📝 *Detalles Adicionales:*\n";
@@ -54,6 +72,8 @@ class WhatsAppNotificationService
             $message .= "\n📍 *Ubicación del Servicio:*\n";
             $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
         }
+
+        $message .= "\n\n_Enviado desde el portal de reservas de {$tenant->name}_";
 
         return "https://wa.me/{$phone}?text=" . urlencode(trim($message));
     }

@@ -61,6 +61,24 @@ public function getLandingConfigAttribute(): array
         ],
     ]);
 }
+    public function getWhatsappConfigAttribute(): array
+    {
+        // El prompt sugiere que podría estar dentro de branding_config, 
+        // pero lo ideal es su propia key 'whatsapp_config'. 
+        // Intentamos ambas por seguridad arquitectónica.
+        $config = $this->getSetting('whatsapp_config');
+        
+        if (!$config) {
+            $branding = $this->getSetting('branding_config', []);
+            $config = $branding['whatsapp_config'] ?? [
+                'phone' => '',
+                'templates' => [],
+            ];
+        }
+
+        return $config;
+    }
+
     public function getWhatsappNumberAttribute(): ?string
     {
         $config = $this->whatsapp_config;
