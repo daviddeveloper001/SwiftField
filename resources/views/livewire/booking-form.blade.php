@@ -47,7 +47,7 @@
             </div>
 
             <div class="mt-8 flex justify-end">
-                <x-ui.button wire:click="nextStep" type="button"
+                <x-ui.button wire:click="nextStep" type="button" wire:loading.attr="disabled"
                     class="bg-primary hover:brightness-90 transition-all">Siguiente &rarr;</x-ui.button>
             </div>
         </div>
@@ -92,10 +92,10 @@
             </div>
 
             <div class="mt-8 flex justify-between">
-                <x-ui.button wire:click="previousStep" type="button"
+                <x-ui.button wire:click="previousStep" type="button" wire:loading.attr="disabled"
                     class="bg-gray-500 hover:bg-gray-600 focus:bg-gray-600 active:bg-gray-700">&larr;
                     Volver</x-ui.button>
-                <x-ui.button wire:click="nextStep" type="button"
+                <x-ui.button wire:click="nextStep" type="button" wire:loading.attr="disabled"
                     class="bg-primary hover:brightness-90 transition-all">Siguiente &rarr;</x-ui.button>
             </div>
         </div>
@@ -256,10 +256,10 @@
             </div>
 
             <div class="mt-8 flex justify-between">
-                <x-ui.button wire:click="previousStep" type="button"
+                <x-ui.button wire:click="previousStep" type="button" wire:loading.attr="disabled"
                     class="bg-gray-500 hover:bg-gray-600 focus:bg-gray-600 active:bg-gray-700">&larr;
                     Volver</x-ui.button>
-                <x-ui.button wire:click="submit" type="button"
+                <x-ui.button wire:click="submit" type="button" wire:loading.attr="disabled"
                     class="bg-primary hover:brightness-90 transition-all">{{ $selectedService->requires_quote ? 'Solicitar Presupuesto' : 'Completar Reserva' }}</x-ui.button>
             </div>
         </div>
