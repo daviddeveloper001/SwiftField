@@ -29,6 +29,7 @@ class AvailabilityService
             ->first();
 
         if (!$availability || !$availability->start_time || !$availability->end_time) {
+            \Illuminate\Support\Facades\Log::warning("No availability record found for Tenant {$tenantId} on Day {$carbonDate->dayOfWeek}. Assuming CLOSED.");
             return [];
         }
 
@@ -97,5 +98,59 @@ class AvailabilityService
     {
         $availableSlots = $this->getAvailableSlots($serviceId, $date);
         return in_array($time, $availableSlots);
+    }
+
+    /**
+     * Valida si un rango específico está disponible para un servicio.
+     */
+    public function isRangeAvailable(int $serviceId, Carbon $startAt, ?int $excludeBookingId = null): bool
+    {
+        $service = Service::findOrFail($serviceId);
+        $tenantId = $service->tenant_id;
+        $duration = (int) $service->duration_minutes;
+        $endAt = $startAt->copy()->addMinutes($duration);
+        $date = $startAt->format('Y-m-d');
+        $dayOfWeek = $startAt->dayOfWeek;
+
+        \Illuminate\Support\Facades\Log::info("Checking availability for Service {$serviceId}, Tenant {$tenantId}, Date {$date}, Time {$startAt->format('H:i')}, Day {$dayOfWeek}");
+
+        // 1. Horario laboral
+        $availability = Availability::where('tenant_id', $tenantId)
+            ->where('day_of_week', $dayOfWeek)
+            ->where('is_open', true)
+            ->first();
+
+        if (!$availability) {
+            \Illuminate\Support\Facades\Log::warning("No availability found or day closed for Day {$dayOfWeek}");
+            return false;
+        }
+
+        $workStart = Carbon::parse($date . ' ' . $availability->start_time->format('H:i'));
+        $workEnd = Carbon::parse($date . ' ' . $availability->end_time->format('H:i'));
+
+        if ($startAt->lt($workStart) || $endAt->gt($workEnd)) {
+            \Illuminate\Support\Facades\Log::warning("Time range {$startAt->format('H:i')} - {$endAt->format('H:i')} is outside work hours {$workStart->format('H:i')} - {$workEnd->format('H:i')}");
+            return false;
+        }
+
+        // 2. Traslape con otras citas
+        $conflictBooking = Booking::where('tenant_id', $tenantId)
+            ->whereDate('scheduled_at', $date)
+            ->whereNotIn('status', [BookingStatus::Cancelled])
+            ->when($excludeBookingId, fn($q) => $q->where('id', '!=', $excludeBookingId))
+            ->with('service')
+            ->get()
+            ->first(function ($booking) use ($startAt, $endAt) {
+                $bStart = Carbon::parse($booking->scheduled_at);
+                $bEnd = $bStart->copy()->addMinutes((int)($booking->service->duration_minutes ?? 60));
+                return $startAt->lt($bEnd) && $endAt->gt($bStart);
+            });
+
+        if ($conflictBooking) {
+            \Illuminate\Support\Facades\Log::warning("Conflict with Booking ID {$conflictBooking->id}");
+            return false;
+        }
+
+        return true;
     }
 }

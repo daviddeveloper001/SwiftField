@@ -24,6 +24,9 @@ use App\Services\WhatsAppNotificationService;
 use App\Enums\BookingStatus;
 use Filament\Actions\ExportAction;
 use App\Filament\Exports\BookingExporter;
+use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use App\Services\Booking\AvailabilityService;
 
 class BookingsTable
 {
@@ -86,7 +89,28 @@ class BookingsTable
                     ->form([
                         DatePicker::make('date')
                             ->label('Fecha')
-                            ->required(),
+                            ->required()
+                            ->rules([
+                                fn (Action $action): \Closure => function (string $attribute, $value, \Closure $fail) use ($action) {
+                                    $record = $action->getRecord();
+                                    
+                                    if (! $record) {
+                                        return;
+                                    }
+
+                                    $availabilityService = app(\App\Services\Booking\AvailabilityService::class);
+                                    
+                                    // Comprobamos disponibilidad para cualquier hora del día solo para ver si el día está abierto
+                                    $testTime = \Carbon\Carbon::parse($value)->setHour(12);
+                                    if (! $availabilityService->isRangeAvailable((int) $record->service_id, $testTime, (int) $record->id)) {
+                                        // Si falla a las 12, probamos con getAvailableSlots para ver si hay ALGO abierto ese día
+                                        $slots = $availabilityService->getAvailableSlots((int) $record->service_id, $value);
+                                        if (empty($slots)) {
+                                            $fail('Este día no está disponible según la configuración del negocio.');
+                                        }
+                                    }
+                                },
+                            ]),
                         TimePicker::make('time')
                             ->label('Hora')
                             ->required(),
@@ -96,15 +120,31 @@ class BookingsTable
                             ->prefix('$')
                             ->required(),
                     ])
-                    ->action(function (Booking $record, array $data): void {
-                        $scheduledAt = $data['date'] . ' ' . $data['time'];
+                    ->action(function (Booking $record, array $data, Action $action): void {
+                        $scheduledAt = Carbon::parse($data['date'] . ' ' . $data['time']);
+                        $availabilityService = app(AvailabilityService::class);
+
+                        if (!$availabilityService->isRangeAvailable((int) $record->service_id, $scheduledAt, (int) $record->id)) {
+                            Notification::make()
+                                ->title('Horario no disponible')
+                                ->body('Este horario no está disponible según la configuración del negocio o choca con otra cita.')
+                                ->danger()
+                                ->send();
+                            
+                            $action->halt();
+                            return;
+                        }
                         
                         $record->update([
                             'status' => BookingStatus::Confirmed,
                             'scheduled_at' => $scheduledAt,
+                            'price' => $data['price'] ?? $record->price,
                         ]);
 
-                        // Enviar notificación si es necesario
+                        Notification::make()
+                            ->title('Cotización Convertida')
+                            ->success()
+                            ->send();
                     }),
                 Action::make('Confirmar Reserva')
                     ->icon('heroicon-o-check-circle')
