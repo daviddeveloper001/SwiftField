@@ -28,66 +28,81 @@ class AvailabilityService
             ->where('is_open', true)
             ->first();
 
-        if (!$availability || !$availability->start_time || !$availability->end_time) {
-            \Illuminate\Support\Facades\Log::warning("No availability record found for Tenant {$tenantId} on Day {$carbonDate->dayOfWeek}. Assuming CLOSED.");
+        if (!$availability || empty($availability->ranges)) {
             return [];
         }
 
-        // 2. Límites operativos del día
-        $workStart = Carbon::parse($date . ' ' . $availability->start_time->format('H:i'));
-        $workEnd = Carbon::parse($date . ' ' . $availability->end_time->format('H:i'));
-        
-        // Margen para hoy
-        if ($carbonDate->isToday()) {
-            $now = Carbon::now()->addMinutes(15)->ceilMinute(15);
-            if ($now->gt($workStart)) {
-                $workStart = $now;
-            }
-        }
+        // 2. Reservas existentes y Bloqueos temporales
+        $occupiedRanges = collect();
 
-        if ($workStart->copy()->addMinutes($duration)->gt($workEnd)) {
-            return [];
-        }
-
-        // 3. Reservas existentes (mapeadas a rangos ocupados)
-        $occupiedRanges = Booking::where('tenant_id', $tenantId)
+        Booking::where('tenant_id', $tenantId)
             ->whereDate('scheduled_at', $date)
             ->whereNotIn('status', [BookingStatus::Cancelled])
             ->with('service')
             ->get()
-            ->map(function ($booking) {
+            ->each(function ($booking) use ($occupiedRanges) {
                 $start = Carbon::parse($booking->scheduled_at);
                 $dur = (int) ($booking->service->duration_minutes ?? 60);
-                return [
+                $occupiedRanges->push([
                     'start' => $start,
                     'end' => $start->copy()->addMinutes($dur)
-                ];
+                ]);
             });
 
-        // 4. Generación de slots con Ventana Deslizable
+        \App\Models\AvailabilityBlock::where('tenant_id', $tenantId)
+            ->whereDate('start_time', '<=', $date)
+            ->whereDate('end_time', '>=', $date)
+            ->get()
+            ->each(function ($block) use ($occupiedRanges) {
+                $occupiedRanges->push([
+                    'start' => Carbon::parse($block->start_time),
+                    'end' => Carbon::parse($block->end_time)
+                ]);
+            });
+
+        // 3. Generación de slots con Ventana Deslizable para cada rango
         $slots = [];
-        $current = $workStart->copy();
-        
-        // El intervalo de búsqueda es cada 30 minutos (ajustable)
-        $searchInterval = 30;
+        $searchInterval = 30; // El intervalo de búsqueda
 
-        while ($current->copy()->addMinutes($duration)->lte($workEnd)) {
-            $windowStart = $current->copy();
-            $windowEnd = $current->copy()->addMinutes($duration);
-
-            // Verificar si la VENTANA COMPLETA está libre
-            $isConflict = $occupiedRanges->contains(function ($range) use ($windowStart, $windowEnd) {
-                // Hay traslape si: (Ventana_Inicio < Rango_Fin) Y (Ventana_Fin > Rango_Inicio)
-                return $windowStart->lt($range['end']) && $windowEnd->gt($range['start']);
-            });
-
-            if (!$isConflict) {
-                $slots[] = $windowStart->format('H:i');
+        foreach ($availability->ranges as $range) {
+            if (!isset($range['start_time']) || !isset($range['end_time'])) {
+                continue;
             }
 
-            $current->addMinutes($searchInterval);
+            $workStart = Carbon::parse($date . ' ' . $range['start_time']);
+            $workEnd = Carbon::parse($date . ' ' . $range['end_time']);
+            
+            // Margen para hoy
+            if ($carbonDate->isToday()) {
+                $now = Carbon::now()->addMinutes(15)->ceilMinute(15);
+                if ($now->gt($workStart)) {
+                    $workStart = $now;
+                }
+            }
+
+            $current = $workStart->copy();
+            
+            while ($current->copy()->addMinutes($duration)->lte($workEnd)) {
+                $windowStart = $current->copy();
+                $windowEnd = $current->copy()->addMinutes($duration);
+
+                // Verificar si la VENTANA COMPLETA está libre
+                $isConflict = $occupiedRanges->contains(function ($occupied) use ($windowStart, $windowEnd) {
+                    // Hay traslape si: (Ventana_Inicio < Rango_Fin) Y (Ventana_Fin > Rango_Inicio)
+                    return $windowStart->lt($occupied['end']) && $windowEnd->gt($occupied['start']);
+                });
+
+                if (!$isConflict) {
+                    $slots[] = $windowStart->format('H:i');
+                }
+
+                $current->addMinutes($searchInterval);
+            }
         }
 
+        // Retornar slots únicos y ordenados por si hay cruces de rangos
+        $slots = array_unique($slots);
+        sort($slots);
         return $slots;
     }
 

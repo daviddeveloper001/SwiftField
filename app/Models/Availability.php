@@ -12,16 +12,14 @@ class Availability extends Model
     protected $fillable = [
         'tenant_id',
         'day_of_week',
-        'start_time',
-        'end_time',
         'is_open',
+        'ranges',
     ];
 
     protected $casts = [
         'day_of_week' => 'integer',
         'is_open' => 'boolean',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'ranges' => 'array',
     ];
 
     public function tenant(): BelongsTo

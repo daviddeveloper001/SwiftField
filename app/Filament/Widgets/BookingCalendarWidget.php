@@ -39,11 +39,10 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
             ->where('tenant_id', $tenant->id)
             ->whereNotNull('scheduled_at')
             ->with(['customer', 'service'])
-            ->get();
-
-        return $bookings->map(
+            ->get()
+            ->map(
                 fn (Booking $booking) => [
-                    'id' => $booking->id,
+                    'id' => 'booking_' . $booking->id,
                     'title' => ($booking->customer?->name ?? 'Sin Cliente') . ' - ' . ($booking->service?->name ?? 'Sin Servicio'),
                     'start' => $booking->scheduled_at->toIso8601String(),
                     'end' => $booking->scheduled_at->copy()->addHours(1)->toIso8601String(),
@@ -52,6 +51,23 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
                 ]
             )
             ->all();
+
+        $blocks = \App\Models\AvailabilityBlock::query()
+            ->where('tenant_id', $tenant->id)
+            ->get()
+            ->map(
+                fn ($block) => [
+                    'id' => 'block_' . $block->id,
+                    'title' => 'Bloqueo: ' . ($block->reason ?: 'No disponible'),
+                    'start' => $block->start_time->toIso8601String(),
+                    'end' => $block->end_time->toIso8601String(),
+                    'backgroundColor' => '#4b5563', // gray-600
+                    'borderColor' => '#4b5563',
+                ]
+            )
+            ->all();
+
+        return array_merge($bookings, $blocks);
     }
 
     public function getMinTime(): string
@@ -87,6 +103,9 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
     {
         if ($name === 'viewBooking' && isset($arguments['record'])) {
             $this->activeBooking = Booking::find($arguments['record']);
+        }
+        if ($name === 'viewBlock' && isset($arguments['record'])) {
+            $this->activeBlock = \App\Models\AvailabilityBlock::find($arguments['record']);
         }
         return $this->baseMountAction($name, $arguments, $context);
     }
@@ -130,6 +149,44 @@ class BookingCalendarWidget extends Widget implements HasActions, HasForms
                         if ($this->activeBooking) {
                             $url = app(WhatsAppNotificationService::class)->getReminderUrl($this->activeBooking);
                             $this->js("window.open('{$url}', '_blank')");
+                        }
+                    }),
+            ]);
+    }
+
+    public ?\App\Models\AvailabilityBlock $activeBlock = null;
+
+    public function viewBlockAction(): Action
+    {
+        return Action::make('viewBlock')
+            ->modalHeading('Detalles del Bloqueo')
+            ->form([
+                TextInput::make('reason')
+                    ->label('Razón')
+                    ->default(fn () => $this->activeBlock?->reason ?: 'Sin razón')
+                    ->disabled(),
+                DateTimePicker::make('start_time')
+                    ->label('Desde')
+                    ->default(fn () => $this->activeBlock?->start_time)
+                    ->disabled(),
+                DateTimePicker::make('end_time')
+                    ->label('Hasta')
+                    ->default(fn () => $this->activeBlock?->end_time)
+                    ->disabled(),
+            ])
+            ->extraModalFooterActions([
+                Action::make('Eliminar')
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->action(function () {
+                        if ($this->activeBlock) {
+                            $this->activeBlock->delete();
+                            \Filament\Notifications\Notification::make()
+                                ->title('Bloqueo eliminado')
+                                ->success()
+                                ->send();
+                            $this->js("window.location.reload()");
                         }
                     }),
             ]);

@@ -27,7 +27,14 @@
                         events: @js($this->fetchEvents()),
                         eventClick: (info) => {
                             info.jsEvent.preventDefault();
-                            $wire.mountAction('viewBooking', { record: info.event.id });
+                            let recordId = String(info.event.id);
+                            if (recordId.startsWith('block_')) {
+                                $wire.mountAction('viewBlock', { record: recordId.replace('block_', '') });
+                            } else if (recordId.startsWith('booking_')) {
+                                $wire.mountAction('viewBooking', { record: recordId.replace('booking_', '') });
+                            } else {
+                                $wire.mountAction('viewBooking', { record: recordId });
+                            }
                         }
                     });
                     calendar.render();

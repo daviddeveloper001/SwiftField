@@ -57,8 +57,7 @@ class ManageAvailability extends Page implements HasForms
                     'day_of_week' => $day->value,
                     'day_name' => $day->getLabel(),
                     'is_open' => $availability ? $availability->is_open : $day->isOpenByDefault(),
-                    'start_time' => $availability ? $availability->start_time?->format('H:i') : self::DEFAULT_START_TIME,
-                    'end_time' => $availability ? $availability->end_time?->format('H:i') : self::DEFAULT_END_TIME,
+                    'ranges' => ($availability && $availability->ranges) ? $availability->ranges : [['start_time' => self::DEFAULT_START_TIME, 'end_time' => self::DEFAULT_END_TIME]],
                 ];
             }
 
@@ -121,15 +120,23 @@ class ManageAvailability extends Page implements HasForms
                                             ->label('Abierto')
                                             ->inline(false)
                                             ->reactive(),
-                                        TimePicker::make('start_time')
-                                            ->label('Desde')
-                                            ->required(fn ($get) => $get('is_open'))
+                                        Repeater::make('ranges')
+                                            ->label('Rangos (ej. Mañana y Tarde)')
+                                            ->schema([
+                                                Grid::make(2)->schema([
+                                                    TimePicker::make('start_time')
+                                                        ->label('Desde')
+                                                        ->required(),
+                                                    TimePicker::make('end_time')
+                                                        ->label('Hasta')
+                                                        ->required()
+                                                        ->after('start_time'),
+                                                ])
+                                            ])
+                                            ->columnSpan(2)
+                                            ->addActionLabel('Añadir Rango')
+                                            ->defaultItems(1)
                                             ->visible(fn ($get) => $get('is_open')),
-                                        TimePicker::make('end_time')
-                                            ->label('Hasta')
-                                            ->required(fn ($get) => $get('is_open'))
-                                            ->visible(fn ($get) => $get('is_open'))
-                                            ->after(fn ($get) => $get('start_time')),
                                     ]),
                             ])
                             ->addable(false)
@@ -164,8 +171,7 @@ class ManageAvailability extends Page implements HasForms
                 ],
                 [
                     'is_open' => $dayData['is_open'],
-                    'start_time' => $dayData['is_open'] ? $dayData['start_time'] : null,
-                    'end_time' => $dayData['is_open'] ? $dayData['end_time'] : null,
+                    'ranges' => $dayData['is_open'] ? $dayData['ranges'] : null,
                 ]
             );
         }
