@@ -61,6 +61,10 @@ class BookingService
 
             $this->validateCustomValues($dto->custom_values, $service);
 
+            $customValues = $dto->custom_values;
+            $customValues['_delivery_mode'] = $dto->delivery_mode;
+            $customValues['_shipping_fee_applied'] = $dto->shipping_fee_applied;
+
             return $this->bookingRepository->create([
                 'uuid' => (string) Str::uuid(),
                 'tenant_id' => $dto->tenant_id,
@@ -70,7 +74,7 @@ class BookingService
                 'scheduled_at' => $dto->scheduled_at,
                 'lat' => $dto->lat,
                 'lng' => $dto->lng,
-                'custom_values' => $dto->custom_values,
+                'custom_values' => $customValues,
                 'internal_notes' => $dto->internal_notes,
             ]);
         });

@@ -31,6 +31,7 @@ class BookingForm extends Component
     public ?float $lng = null;
     public array $custom_values = [];
     public string $quote_text = '';
+    public ?string $delivery_mode = null;
 
     // Computed / Auxiliary
     public ?Service $selectedService = null;
@@ -71,6 +72,14 @@ class BookingForm extends Component
             foreach ($this->fieldDefinitions as $field) {
                 $this->custom_values[$field['key'] ?? $field['name']] = ''; // default empty
             }
+
+            // Set default delivery mode from service
+            if ($this->selectedService->delivery_mode !== 'hibrido') {
+                $this->delivery_mode = $this->selectedService->delivery_mode;
+            } else {
+                $this->delivery_mode = null; // Requerir selección si es híbrido
+            }
+
             $this->loadAvailableSlots();
         } else {
             $this->selectedService = null;
@@ -148,6 +157,7 @@ class BookingForm extends Component
         $rules = [
             'customer_name' => 'required|string|max:255',
             'customer_phone' => ['required', 'string', 'regex:/^3[0-9]{9}$/'],
+            'delivery_mode' => 'required|in:local,domicilio',
         ];
 
         $messages = [
@@ -155,6 +165,7 @@ class BookingForm extends Component
             'customer_name.max' => 'El nombre no puede exceder los 255 caracteres.',
             'customer_phone.required' => 'El número de teléfono es obligatorio.',
             'customer_phone.regex' => 'Número celular no válido (ej: 310 123 4567).',
+            'delivery_mode.required' => 'Por favor, selecciona dónde prefieres tu cita.',
         ];
 
         if ($isQuote) {
@@ -198,6 +209,8 @@ class BookingForm extends Component
             'lng' => $this->lng,
             'custom_values' => $customValues,
             'status' => $isQuote ? BookingStatus::QuotationRequested->value : BookingStatus::Pending->value,
+            'delivery_mode' => $this->delivery_mode,
+            'shipping_fee_applied' => $this->delivery_mode === 'domicilio' ? $this->selectedService->shipping_fee : 0,
         ]);
 
         $booking = $bookingService->createBooking($dto);

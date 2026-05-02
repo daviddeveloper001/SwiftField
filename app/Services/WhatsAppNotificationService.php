@@ -53,11 +53,25 @@ class WhatsAppNotificationService
             ? $booking->scheduled_at->format('d M Y - h:i A') 
             : 'Por confirmar';
 
-        $message = "✨ *{$typeLabel}* ✨\n\n";
+        $deliveryMode = $booking->custom_values['_delivery_mode'] ?? 'local';
+        $tag = strtoupper($deliveryMode);
+        
+        $message = "✨ *[{$tag}] {$typeLabel}* ✨\n\n";
         $message .= "Hola *{$tenant->name}*, he generado un nuevo requerimiento a través de SwiftField.\n\n";
         
         $message .= "🛠️ *Servicio:* {$service->name}\n";
         $message .= "📅 *Fecha/Hora:* {$scheduledAt}\n\n";
+
+        $price = (float) $service->price;
+        $shippingFee = (float) ($booking->custom_values['_shipping_fee_applied'] ?? 0);
+        $total = $price + $shippingFee;
+
+        $message .= "💰 *Resumen de Costos:*\n";
+        $message .= "- Servicio: $" . number_format($price, 2) . "\n";
+        if ($shippingFee > 0) {
+            $message .= "- Domicilio: $" . number_format($shippingFee, 2) . "\n";
+        }
+        $message .= "- *Total:* $" . number_format($total, 2) . "\n\n";
 
         $message .= "👤 *Datos del Cliente:*\n";
         $message .= "- *Nombre:* {$customer->name}\n";

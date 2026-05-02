@@ -20,6 +20,8 @@ class Service extends ModelBase
         'description',
         'requires_quote',
         'quote_label',
+        'delivery_mode',
+        'shipping_fee',
     ];
 
     protected $casts = [
@@ -27,6 +29,7 @@ class Service extends ModelBase
         'price' => 'decimal:2',
         'is_active' => 'boolean',
         'requires_quote' => 'boolean',
+        'shipping_fee' => 'decimal:2',
     ];
 
     public function tenant(): BelongsTo

@@ -46,6 +46,32 @@
                 @enderror
             </div>
 
+            @if($selectedService && $selectedService->delivery_mode === 'hibrido')
+                <div class="mt-6 space-y-4">
+                    <x-ui.label value="¿Dónde prefieres tu cita?" />
+                    <div class="flex gap-4">
+                        <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-md flex-1 {{ $delivery_mode === 'local' ? 'border-primary bg-primary/5' : 'border-gray-200' }}">
+                            <input type="radio" wire:model.live="delivery_mode" value="local" class="text-primary focus:ring-primary">
+                            <span class="text-sm font-medium">En el Local</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer p-3 border rounded-md flex-1 {{ $delivery_mode === 'domicilio' ? 'border-primary bg-primary/5' : 'border-gray-200' }}">
+                            <input type="radio" wire:model.live="delivery_mode" value="domicilio" class="text-primary focus:ring-primary">
+                            <span class="text-sm font-medium">A Domicilio (+ ${{ number_format($selectedService->shipping_fee, 2) }})</span>
+                        </label>
+                    </div>
+                    @error('delivery_mode')
+                        <span class="text-red-500 text-sm">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
+
+            @if($selectedService && ($delivery_mode === 'domicilio' || $selectedService->delivery_mode === 'domicilio'))
+                <div class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md flex justify-between items-center">
+                    <span class="text-sm text-blue-700 font-medium">Costo de Domicilio:</span>
+                    <span class="text-sm text-blue-800 font-bold">+ ${{ number_format($selectedService->shipping_fee, 2) }}</span>
+                </div>
+            @endif
+
             <div class="mt-8 flex justify-end">
                 <x-ui.button wire:click="nextStep" type="button" wire:loading.attr="disabled"
                     class="bg-primary hover:brightness-90 transition-all">Siguiente &rarr;</x-ui.button>
@@ -221,6 +247,7 @@
                 @endif
 
                 <!-- Location block with AlpineJS -->
+                @if($delivery_mode === 'domicilio')
                 <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
                     <h3 class="font-medium text-gray-900 mb-2">📍 Tu Ubicación</h3>
                     <p class="text-sm text-gray-600 mb-3">Necesitamos tu ubicación para que el profesional pueda llegar
@@ -253,6 +280,7 @@
                         </div>
                     @endif
                 </div>
+                @endif
             </div>
 
             <div class="mt-8 flex justify-between">

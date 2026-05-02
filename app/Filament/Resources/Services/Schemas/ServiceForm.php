@@ -61,6 +61,24 @@ class ServiceForm
                     ->required()
                     ->default(true)
                     ->inline(false),
+                Select::make('delivery_mode')
+                    ->label('Modalidad de Prestación')
+                    ->options([
+                        'local' => 'Local (En el establecimiento)',
+                        'domicilio' => 'A Domicilio',
+                        'hibrido' => 'Híbrido (Cliente elige)',
+                    ])
+                    ->default('local')
+                    ->required()
+                    ->live(),
+                TextInput::make('shipping_fee')
+                    ->label('Costo de Domicilio')
+                    ->numeric()
+                    ->prefix('$')
+                    ->default(0)
+                    ->visible(fn ($get) => in_array($get('delivery_mode'), ['domicilio', 'hibrido']))
+                    ->required(fn ($get) => in_array($get('delivery_mode'), ['domicilio', 'hibrido'])),
+
                 Toggle::make('requires_quote')
                     ->label('Requiere Cotización')
                     ->helperText('Si se activa, el cliente pedirá un presupuesto en lugar de reservar una cita con fecha fija.')
