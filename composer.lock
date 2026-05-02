@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e46fe39b358f8372932bf9ef6eb0288",
+    "content-hash": "6a56d3dab0b11d38dd3a18f168aef2fc",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -9974,16 +9974,16 @@
         },
         {
             "name": "laravel-lang/lang",
-            "version": "15.29.2",
+            "version": "15.29.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Lang/lang.git",
-                "reference": "791087e95fc8525c227f292ea6f6d4867f0bb2dc"
+                "reference": "c388b20ea78da7ad6234f9ec0681d326f31d35f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Lang/lang/zipball/791087e95fc8525c227f292ea6f6d4867f0bb2dc",
-                "reference": "791087e95fc8525c227f292ea6f6d4867f0bb2dc",
+                "url": "https://api.github.com/repos/Laravel-Lang/lang/zipball/c388b20ea78da7ad6234f9ec0681d326f31d35f6",
+                "reference": "c388b20ea78da7ad6234f9ec0681d326f31d35f6",
                 "shasum": ""
             },
             "require": {
@@ -10044,7 +10044,7 @@
                     "type": "yoomoney"
                 }
             ],
-            "time": "2026-03-21T00:27:29+00:00"
+            "time": "2026-04-26T14:40:40+00:00"
         },
         {
             "name": "laravel-lang/locale-list",
@@ -13859,5 +13859,5 @@
         "php": "^8.2"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

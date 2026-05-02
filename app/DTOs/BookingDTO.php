@@ -17,7 +17,9 @@ readonly class BookingDTO
         public ?float $lng = null,
         public array $custom_values = [],
         public ?string $internal_notes = null,
-        public string $status = 'pending'
+        public string $status = 'pending',
+        public ?string $delivery_mode = null,
+        public ?float $shipping_fee_applied = 0
     ) {
     }
 
@@ -32,7 +34,9 @@ readonly class BookingDTO
             lng: isset($data['lng']) ? (float) $data['lng'] : null,
             custom_values: (array) ($data['custom_values'] ?? []),
             internal_notes: $data['internal_notes'] ?? null,
-            status: $data['status'] ?? 'pending'
+            status: $data['status'] ?? 'pending',
+            delivery_mode: $data['delivery_mode'] ?? null,
+            shipping_fee_applied: (float) ($data['shipping_fee_applied'] ?? 0)
         );
     }
 }

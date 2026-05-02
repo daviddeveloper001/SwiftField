@@ -52,6 +52,20 @@ class BookingsTable
                     ->badge()
                     ->sortable()
                     ->label('Estado'),
+                TextColumn::make('custom_values._delivery_mode')
+                    ->badge()
+                    ->label('Modalidad')
+                    ->color(fn (string $state): string => match ($state) {
+                        'domicilio' => 'warning',
+                        'local' => 'success',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'domicilio' => 'heroicon-m-home',
+                        'local' => 'heroicon-m-building-storefront',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
             ])
             ->filters([
                 SelectFilter::make('status')
