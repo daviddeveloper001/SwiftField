@@ -43,7 +43,7 @@ class WhatsAppNotificationService
         
         // Fallback al número de soporte si no hay número de tenant
         if (empty($phone)) {
-            $phone = $this->sanitizePhone(config('app.support_whatsapp', '573000000000'));
+            $phone = $this->sanitizePhone(config('app.support_whatsapp'));
         }
 
         $isQuote = $booking->scheduled_at === null;
