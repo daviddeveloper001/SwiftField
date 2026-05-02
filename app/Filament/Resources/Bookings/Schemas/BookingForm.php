@@ -35,7 +35,26 @@ class BookingForm
 
                 DateTimePicker::make('scheduled_at')
                     ->label('Fecha y hora')
-                    ->required(),
+                    ->required()
+                    ->live()
+                    ->rules([
+                        fn (Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            $serviceId = $get('service_id');
+                            if (! $serviceId || ! $value) {
+                                return;
+                            }
+
+                            $scheduledAt = \Carbon\Carbon::parse($value);
+                            $availabilityService = app(\App\Services\Booking\AvailabilityService::class);
+                            
+                            // El ID puede ser null en creación
+                            $recordId = $get('id');
+
+                            if (! $availabilityService->isRangeAvailable((int) $serviceId, $scheduledAt, $recordId ? (int) $recordId : null)) {
+                                $fail('Este horario no está disponible según la configuración del negocio.');
+                            }
+                        },
+                    ]),
                 Select::make('status')
                     ->label('Estado')
                     ->options(BookingStatus::class)
