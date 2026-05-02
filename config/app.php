@@ -99,6 +99,15 @@ return [
 
     'key' => env('APP_KEY'),
 
+    'support_whatsapp' => env('SUPPORT_WHATSAPP', '573000000000'),
+
+    'platform_defaults' => [
+        'nequi_number' => env('PLATFORM_NEQUI_NUMBER', '300 000 0000'),
+        'bancolombia_account' => env('PLATFORM_BANCOLOMBIA_ACCOUNT', '123-456789-00'),
+        'account_holder' => env('PLATFORM_ACCOUNT_HOLDER', 'SwiftField Team'),
+        'activation_message' => env('PLATFORM_ACTIVATION_MESSAGE', '⚠️ Una vez realizado el pago, sube el comprobante abajo. Tu servicio será activado en menos de 2 horas.'),
+    ],
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
