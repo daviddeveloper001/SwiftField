@@ -16,19 +16,10 @@
         }
 
         body { font-family: 'Inter', sans-serif; }
-        .bg-grid-pattern { background-image: radial-gradient(circle, #000 1px, transparent 1px); background-size: 30px 30px; }
-        .bg-premium-gradient { background: radial-gradient(circle at 0% 0%, var(--primary-light) 0%, transparent 50%), radial-gradient(circle at 100% 100%, var(--primary-light) 0%, transparent 50%); }
-        
-        /* Animación Fade Up - Modificada para ser visible si JS falla o Alpine tarda */
-        .fade-up { opacity: 0; transform: translateY(20px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .fade-up.visible { opacity: 1; transform: translateY(0); }
-        
-        /* Fallback: Si no hay JS, mostrar todo inmediatamente */
-        noscript .fade-up { opacity: 1; transform: none; }
     </style>
 
     @livewireStyles
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/landing.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-slate-900 antialiased bg-premium-gradient min-h-screen relative">
     <div class="fixed inset-0 bg-grid-pattern opacity-[0.03] pointer-events-none"></div>

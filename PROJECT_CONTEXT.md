@@ -20,6 +20,7 @@ Cualquier implementación debe regirse por estos principios para garantizar esca
 - **Event-Driven Design:** Las acciones secundarias (notificaciones, logs, puntos de fidelidad) deben ejecutarse mediante `Domain Events` y `Listeners` desacoplados.
 - **Result Object Pattern:** Los Services deben retornar un objeto `Result` (success, data, errors) en lugar de lanzar excepciones para flujo de negocio o devolver booleanos simples.
 - **Internationalization (i18n):** NUNCA hardcodear texto visible para el usuario (mensajes de WhatsApp, notificaciones, errores, etiquetas). Todo el texto debe residir en archivos de traducción (`lang/es/*.php`). Esto garantiza consistencia y facilita ajustes rápidos sin tocar la lógica de negocio.
+- **Separation of Concerns (Clean Assets):** QUEDA PROHIBIDO mezclar CSS o JS dentro de archivos Blade. Todo estilo o script debe residir en su propio archivo (`resources/css` o `resources/js`) y ser invocado mediante Vite o compilación de activos. Esto mantiene las vistas limpias y permite el aprovechamiento de caché y minificación.
 - **Hot-Swapping Config:** Los límites, montos y flags de comportamiento deben residir en base de datos (`tenant_settings`) para permitir cambios sin despliegue (Zero-Deploy).
 - **Idempotency:** Operaciones críticas (pagos, agendas) deben usar `idempotency_keys` para evitar duplicados.
 
