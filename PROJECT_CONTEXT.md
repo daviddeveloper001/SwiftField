@@ -19,6 +19,7 @@ Cualquier implementación debe regirse por estos principios para garantizar esca
 - **Dependency Inversion (DIP):** Las clases de alto nivel no deben depender de las de bajo nivel. Ambas deben depender de abstracciones.
 - **Event-Driven Design:** Las acciones secundarias (notificaciones, logs, puntos de fidelidad) deben ejecutarse mediante `Domain Events` y `Listeners` desacoplados.
 - **Result Object Pattern:** Los Services deben retornar un objeto `Result` (success, data, errors) en lugar de lanzar excepciones para flujo de negocio o devolver booleanos simples.
+- **Internationalization (i18n):** NUNCA hardcodear texto visible para el usuario (mensajes de WhatsApp, notificaciones, errores, etiquetas). Todo el texto debe residir en archivos de traducción (`lang/es/*.php`). Esto garantiza consistencia y facilita ajustes rápidos sin tocar la lógica de negocio.
 - **Hot-Swapping Config:** Los límites, montos y flags de comportamiento deben residir en base de datos (`tenant_settings`) para permitir cambios sin despliegue (Zero-Deploy).
 - **Idempotency:** Operaciones críticas (pagos, agendas) deben usar `idempotency_keys` para evitar duplicados.
 
