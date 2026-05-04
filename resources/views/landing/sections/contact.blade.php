@@ -1,4 +1,4 @@
-<section id="contact-{{ $order }}" class="py-24 relative z-10 fade-up">
+<section id="contact" class="py-24 relative z-10 fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="backdrop-blur-md bg-white/60 border border-white/20 rounded-[2.5rem] p-12 shadow-2xl text-center">
             <h2 class="text-3xl font-bold mb-4">{{ $content['title'] ?? '¿Listo para agendar?' }}</h2>

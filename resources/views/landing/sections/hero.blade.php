@@ -26,7 +26,7 @@
             <a href="#services" class="btn-shine bg-primary text-white px-10 py-4 rounded-2xl font-bold shadow-[0_10px_40px_-10px_var(--primary-color)] hover:scale-105 transition-all w-full sm:w-auto">
                 Ver Servicios Disponibles
             </a>
-            <a href="#about" class="bg-white border border-slate-200 text-slate-700 px-10 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all w-full sm:w-auto">
+            <a href="#contact" class="bg-white border border-slate-200 text-slate-700 px-10 py-4 rounded-2xl font-bold hover:bg-slate-50 transition-all w-full sm:w-auto">
                 Saber Más
             </a>
         </div>
