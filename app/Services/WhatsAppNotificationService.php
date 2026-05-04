@@ -47,47 +47,49 @@ class WhatsAppNotificationService
         }
 
         $isQuote = $booking->scheduled_at === null;
-        $typeLabel = $isQuote ? 'SOLICITUD DE COTIZACIÓN' : 'NUEVA RESERVA DE CITA';
+        $typeLabel = $isQuote 
+            ? __('notifications.whatsapp.booking_submission.quotation_request') 
+            : __('notifications.whatsapp.booking_submission.new_booking');
 
         $scheduledAt = !$isQuote 
             ? $booking->scheduled_at->format('d M Y - h:i A') 
-            : 'Por confirmar';
+            : __('notifications.whatsapp.booking_submission.to_confirm');
 
         $deliveryMode = $booking->custom_values['_delivery_mode'] ?? 'local';
         $tag = strtoupper($deliveryMode);
         
         $message = "✨ *[{$tag}] {$typeLabel}* ✨\n\n";
-        $message .= "Hola *{$tenant->name}*, he generado un nuevo requerimiento a través de SwiftField.\n\n";
+        $message .= __('notifications.whatsapp.booking_submission.greeting', ['tenant' => $tenant->name]) . "\n\n";
         
-        $message .= "🛠️ *Servicio:* {$service->name}\n";
-        $message .= "📅 *Fecha/Hora:* {$scheduledAt}\n\n";
+        $message .= "🛠️ *" . __('notifications.whatsapp.booking_submission.service') . ":* {$service->name}\n";
+        $message .= "📅 *" . __('notifications.whatsapp.booking_submission.date_time') . ":* {$scheduledAt}\n\n";
 
         $price = (float) $service->price;
         $shippingFee = (float) ($booking->custom_values['_shipping_fee_applied'] ?? 0);
         $total = $price + $shippingFee;
 
-        $message .= "💰 *Resumen de Costos:*\n";
-        $message .= "- Servicio: $" . number_format($price, 2) . "\n";
+        $message .= "💰 *" . __('notifications.whatsapp.booking_submission.cost_summary') . ":*\n";
+        $message .= "- " . __('notifications.whatsapp.booking_submission.service') . ": $" . number_format($price, 2) . "\n";
         if ($shippingFee > 0) {
-            $message .= "- Domicilio: $" . number_format($shippingFee, 2) . "\n";
+            $message .= "- " . __('notifications.whatsapp.booking_submission.shipping') . ": $" . number_format($shippingFee, 2) . "\n";
         }
-        $message .= "- *Total:* $" . number_format($total, 2) . "\n\n";
+        $message .= "- *" . __('notifications.whatsapp.booking_submission.total') . ":* $" . number_format($total, 2) . "\n\n";
 
-        $message .= "👤 *Datos del Cliente:*\n";
-        $message .= "- *Nombre:* {$customer->name}\n";
-        $message .= "- *Teléfono:* {$customer->phone}\n";
+        $message .= "👤 *" . __('notifications.whatsapp.booking_submission.customer_data') . ":*\n";
+        $message .= "- *" . __('notifications.whatsapp.booking_submission.name') . ":* {$customer->name}\n";
+        $message .= "- *" . __('notifications.whatsapp.booking_submission.phone') . ":* {$customer->phone}\n";
         
         if (!empty($booking->custom_values)) {
-            $message .= "\n📝 *Detalles Adicionales:*\n";
+            $message .= "\n📝 *" . __('notifications.whatsapp.booking_submission.service_details') . ":*\n";
             $message .= $this->formatCustomValuesToString((array) $booking->custom_values) . "\n";
         }
 
         if ($booking->lat && $booking->lng) {
-            $message .= "\n📍 *Ubicación del Servicio:*\n";
+            $message .= "\n📍 *" . __('notifications.whatsapp.booking_submission.location') . ":*\n";
             $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
         }
 
-        $message .= "\n\n_Enviado desde el portal de reservas de {$tenant->name}_";
+        $message .= "\n\n" . __('notifications.whatsapp.booking_submission.footer', ['tenant' => $tenant->name]);
 
         return "https://wa.me/{$phone}?text=" . urlencode(trim($message));
     }
@@ -123,10 +125,16 @@ class WhatsAppNotificationService
         $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
         $scheduledAt = $booking->scheduled_at->format('d M Y - h:i A');
 
-        $message = "¡Hola {$customer->name}! 👋 Soy de {$tenant->name}. Te confirmo que tu servicio de {$service->name} para el día {$scheduledAt}, duración del servicio {$tenant->duration} minutos, ha sido CONFIRMADO. ¡Nos vemos pronto!";
+        $message = __('notifications.whatsapp.confirmation.message', [
+            'customer' => $customer->name,
+            'tenant' => $tenant->name,
+            'service' => $service->name,
+            'date' => $scheduledAt,
+            'duration' => $tenant->duration ?? 0,
+        ]);
 
         if ($booking->lat && $booking->lng) {
-            $message .= "\n\n📍 Ubicación registrada:\n";
+            $message .= "\n\n📍 " . __('notifications.whatsapp.confirmation.location_registered') . ":\n";
             $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
         }
 
@@ -150,7 +158,11 @@ class WhatsAppNotificationService
         $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
         $time = $booking->scheduled_at->format('h:i A');
 
-        $message = "Hola {$customer->name}, te recordamos tu cita de {$service->name} hoy a las {$time}. ¡Estamos listos para atenderte!";
+        $message = __('notifications.whatsapp.reminder.message', [
+            'customer' => $customer->name,
+            'service' => $service->name,
+            'time' => $time,
+        ]);
 
         return "https://wa.me/{$customerPhone}?text=" . urlencode(trim($message));
     }

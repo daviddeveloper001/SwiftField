@@ -20,9 +20,21 @@ trait FormatCustomValues
 
         $formatted = [];
         foreach ($customValues as $key => $value) {
-            $formattedKey = ucwords(str_replace(['_', '-'], ' ', $key));
-            $formattedValue = is_array($value) ? implode(', ', $value) : (string) $value;
-            $formatted[] = "- {$formattedKey}: {$formattedValue}";
+            // Traducir Key usando notifications.fields
+            $label = __("notifications.fields.{$key}");
+            if ($label === "notifications.fields.{$key}") {
+                $label = ucwords(str_replace(['_', '-'], ' ', (string)$key));
+            }
+            
+            // Traducir Value usando notifications.values
+            $valStr = is_array($value) ? implode(', ', $value) : (string) $value;
+            $translatedVal = __("notifications.values." . strtolower($valStr));
+            
+            if ($translatedVal !== "notifications.values." . strtolower($valStr)) {
+                $valStr = $translatedVal;
+            }
+
+            $formatted[] = "• {$label}: {$valStr}";
         }
 
         return implode("\n", $formatted);
