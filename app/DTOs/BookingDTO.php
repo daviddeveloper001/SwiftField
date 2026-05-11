@@ -19,7 +19,8 @@ readonly class BookingDTO
         public ?string $internal_notes = null,
         public string $status = 'pending',
         public ?string $delivery_mode = null,
-        public ?float $shipping_fee_applied = 0
+        public ?float $shipping_fee_applied = 0,
+        public bool $is_auto_confirmed = false
     ) {
     }
 
@@ -36,7 +37,8 @@ readonly class BookingDTO
             internal_notes: $data['internal_notes'] ?? null,
             status: $data['status'] ?? 'pending',
             delivery_mode: $data['delivery_mode'] ?? null,
-            shipping_fee_applied: (float) ($data['shipping_fee_applied'] ?? 0)
+            shipping_fee_applied: (float) ($data['shipping_fee_applied'] ?? 0),
+            is_auto_confirmed: (bool) ($data['is_auto_confirmed'] ?? false)
         );
     }
 }

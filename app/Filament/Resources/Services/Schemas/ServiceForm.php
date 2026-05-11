@@ -61,6 +61,11 @@ class ServiceForm
                     ->required()
                     ->default(true)
                     ->inline(false),
+                Toggle::make('auto_confirm')
+                    ->label('¿Confirmar automáticamente?')
+                    ->helperText('Si se activa, el sistema agendará la cita automáticamente sin intervención del administrador.')
+                    ->default(false)
+                    ->inline(false),
                 Select::make('delivery_mode')
                     ->label('Modalidad de Prestación')
                     ->options([

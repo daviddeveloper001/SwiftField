@@ -5,7 +5,8 @@ return [
         'booking_submission' => [
             'quotation_request' => 'SOLICITUD DE COTIZACIÓN',
             'new_booking' => 'NUEVA RESERVA DE CITA',
-            'greeting' => 'Hola *:tenant*, he generado un nuevo requerimiento a través de SwiftField.',
+            'auto_confirmed_greeting' => '¡Cita Confirmada con éxito! Te esperamos el día :date.',
+            'pending_greeting' => 'Hemos recibido tu solicitud, pronto te confirmaremos.',
             'service' => 'Servicio',
             'date_time' => 'Fecha/Hora',
             'to_confirm' => 'Por confirmar',
