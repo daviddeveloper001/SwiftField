@@ -27,6 +27,7 @@ use App\Filament\Exports\BookingExporter;
 use Carbon\Carbon;
 use Filament\Notifications\Notification;
 use App\Services\Booking\AvailabilityService;
+use Filament\Tables\Columns\IconColumn;
 
 class BookingsTable
 {
@@ -52,7 +53,7 @@ class BookingsTable
                     ->badge()
                     ->sortable()
                     ->label('Estado'),
-                \Filament\Tables\Columns\IconColumn::make('is_auto_confirmed')
+                IconColumn::make('is_auto_confirmed')
                     ->label('Auto')
                     ->boolean()
                     ->trueIcon('heroicon-o-sparkles')
