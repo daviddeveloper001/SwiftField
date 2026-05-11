@@ -25,6 +25,7 @@ class Booking extends ModelBase
         'lng',
         'custom_values',
         'internal_notes',
+        'is_auto_confirmed',
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Booking extends ModelBase
         'lng' => 'float',
         'custom_values' => 'array',
         'status' => BookingStatus::class,
+        'is_auto_confirmed' => 'boolean',
     ];
 
     public function tenant(): BelongsTo

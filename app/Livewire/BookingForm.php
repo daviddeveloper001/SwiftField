@@ -197,6 +197,11 @@ class BookingForm extends Component
             $customValues['detalles_de_la_solicitud'] = $this->quote_text;
         }
 
+        $autoConfirm = (bool) ($this->selectedService->auto_confirm ?? false);
+        $status = $isQuote 
+            ? BookingStatus::QuotationRequested->value 
+            : ($autoConfirm ? BookingStatus::Confirmed->value : BookingStatus::Pending->value);
+
         $dto = BookingDTO::fromArray([
             'tenant_id' => $this->tenantId,
             'service_id' => $this->service_id,
@@ -208,9 +213,10 @@ class BookingForm extends Component
             'lat' => $this->lat,
             'lng' => $this->lng,
             'custom_values' => $customValues,
-            'status' => $isQuote ? BookingStatus::QuotationRequested->value : BookingStatus::Pending->value,
+            'status' => $status,
             'delivery_mode' => $this->delivery_mode,
             'shipping_fee_applied' => $this->delivery_mode === 'domicilio' ? $this->selectedService->shipping_fee : 0,
+            'is_auto_confirmed' => $autoConfirm && !$isQuote,
         ]);
 
         $booking = $bookingService->createBooking($dto);

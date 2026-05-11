@@ -59,7 +59,14 @@ class WhatsAppNotificationService
         $tag = strtoupper($deliveryMode);
         
         $message = "✨ *[{$tag}] {$typeLabel}* ✨\n\n";
-        $message .= __('notifications.whatsapp.booking_submission.greeting', ['tenant' => $tenant->name]) . "\n\n";
+        
+        if ($booking->is_auto_confirmed) {
+            $message .= __('notifications.whatsapp.booking_submission.auto_confirmed_greeting', [
+                'date' => $booking->scheduled_at->format('d/m/Y')
+            ]) . "\n\n";
+        } else {
+            $message .= __('notifications.whatsapp.booking_submission.pending_greeting') . "\n\n";
+        }
         
         $message .= "🛠️ *" . __('notifications.whatsapp.booking_submission.service') . ":* {$service->name}\n";
         $message .= "📅 *" . __('notifications.whatsapp.booking_submission.date_time') . ":* {$scheduledAt}\n\n";

@@ -52,6 +52,13 @@ class BookingsTable
                     ->badge()
                     ->sortable()
                     ->label('Estado'),
+                \Filament\Tables\Columns\IconColumn::make('is_auto_confirmed')
+                    ->label('Auto')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-sparkles')
+                    ->falseIcon('')
+                    ->color('success')
+                    ->tooltip('Cita confirmada automáticamente'),
                 TextColumn::make('custom_values._delivery_mode')
                     ->badge()
                     ->label('Modalidad')
