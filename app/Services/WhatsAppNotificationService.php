@@ -47,26 +47,30 @@ class WhatsAppNotificationService
         }
 
         $isQuote = $booking->scheduled_at === null;
+        $isAutoConfirm = $service->auto_confirm ?? false;
+
+        $header = $isAutoConfirm 
+            ? __('notifications.whatsapp.booking_submission.confirmed_header')
+            : __('notifications.whatsapp.booking_submission.pending_header');
+
+        $greeting = $isAutoConfirm
+            ? __('notifications.whatsapp.booking_submission.confirmed_body')
+            : __('notifications.whatsapp.booking_submission.pending_body');
+
         $typeLabel = $isQuote 
             ? __('notifications.whatsapp.booking_submission.quotation_request') 
-            : __('notifications.whatsapp.booking_submission.new_booking');
+            : $header;
 
         $scheduledAt = !$isQuote 
             ? $booking->scheduled_at->format('d M Y - h:i A') 
             : __('notifications.whatsapp.booking_submission.to_confirm');
 
         $deliveryMode = $booking->custom_values['_delivery_mode'] ?? 'local';
-        $tag = strtoupper($deliveryMode);
+        $translatedMode = __("notifications.values.{$deliveryMode}");
+        $tag = strtoupper($translatedMode);
         
         $message = "✨ *[{$tag}] {$typeLabel}* ✨\n\n";
-        
-        if ($booking->is_auto_confirmed) {
-            $message .= __('notifications.whatsapp.booking_submission.auto_confirmed_greeting', [
-                'date' => $booking->scheduled_at->format('d/m/Y')
-            ]) . "\n\n";
-        } else {
-            $message .= __('notifications.whatsapp.booking_submission.pending_greeting') . "\n\n";
-        }
+        $message .= "{$greeting}\n\n";
         
         $message .= "🛠️ *" . __('notifications.whatsapp.booking_submission.service') . ":* {$service->name}\n";
         $message .= "📅 *" . __('notifications.whatsapp.booking_submission.date_time') . ":* {$scheduledAt}\n\n";
@@ -93,8 +97,12 @@ class WhatsAppNotificationService
 
         if ($booking->lat && $booking->lng) {
             $message .= "\n📍 *" . __('notifications.whatsapp.booking_submission.location') . ":*\n";
-            $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
+            $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}\n";
         }
+
+        // Enlace directo al panel administrativo
+        $adminUrl = route('filament.admin.resources.bookings.index', ['tenant' => $tenant->slug]);
+        $message .= "\n" . __('notifications.whatsapp.booking_submission.admin_link_label') . ":\n{$adminUrl}";
 
         $message .= "\n\n" . __('notifications.whatsapp.booking_submission.footer', ['tenant' => $tenant->name]);
 
