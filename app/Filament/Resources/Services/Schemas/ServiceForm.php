@@ -89,23 +89,18 @@ class ServiceForm
                     ->helperText('Si se activa, el cliente pedirá un presupuesto en lugar de reservar una cita con fecha fija.')
                     ->live()
                     ->columnSpanFull(),
-                TextInput::make('quote_label')
-                    ->label('Etiqueta para detalles')
-                    ->placeholder('Ej: Describe tu proyecto o ideas...')
-                    ->visible(fn ($get) => $get('requires_quote'))
-                    ->required(fn ($get) => $get('requires_quote'))
-                    ->columnSpanFull(),
+
                 Repeater::make('field_definitions')
-                    ->label('Definición de Campos')
+                    ->label('Información Adicional Requerida')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Nombre del campo (key)')
+                            ->label('Nombre del campo (Interno)')
                             ->required(),
                         TextInput::make('label')
-                            ->label('Etiqueta (label)')
+                            ->label('Etiqueta (Lo que ve el cliente)')
                             ->required(),
                         Select::make('type')
-                            ->label('Tipo')
+                            ->label('Tipo de entrada')
                             ->options([
                                 'text' => 'Texto',
                                 'number' => 'Número',
@@ -114,6 +109,7 @@ class ServiceForm
                             ])
                             ->required(),
                     ])
+                    ->visible(fn ($get) => (bool) $get('requires_quote'))
                     ->columnSpanFull()
                     ->columns(3),
             ]);

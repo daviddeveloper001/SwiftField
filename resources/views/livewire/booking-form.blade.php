@@ -236,7 +236,7 @@
                 @else
                     <!-- Quote Field -->
                     <div>
-                        <x-ui.label for="quote_text" :value="$selectedService->quote_label ?? 'Detalles de la solicitud'" />
+                        <x-ui.label for="quote_text" value="Detalles de la solicitud" />
                         <textarea wire:model="quote_text" id="quote_text" rows="3"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary {{ $errors->has('quote_text') ? 'border-red-500' : '' }}"
                             placeholder="Escribe aquí los detalles..."></textarea>
