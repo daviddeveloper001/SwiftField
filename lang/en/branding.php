@@ -27,6 +27,22 @@ return [
             'map_help' => 'Use the search bar to find your address or move the pin directly on the map.',
         ],
     ],
+    'forms' => [
+        'customer' => [
+            'name' => 'Customer Name',
+            'phone' => 'Phone',
+            'email' => 'Email',
+        ],
+        'booking' => [
+            'quote_details_label' => 'Request Details',
+            'quote_details_placeholder' => 'Write the details here...',
+            'quote_required_error' => 'Please specify the details of your request.',
+        ],
+    ],
+    'labels' => [
+        'customer' => 'Customer',
+        'customers' => 'Customers',
+    ],
     'notifications' => [
         'updated' => [
             'title' => 'Identity updated',

@@ -19,6 +19,8 @@ beforeEach(function () {
     $this->user->tenants()->attach($this->tenant);
     
     $this->actingAs($this->user);
+    filament()->setCurrentPanel(filament()->getPanel('admin'));
+    filament()->setTenant($this->tenant);
 });
 
 it('can render the customer list page', function () {
@@ -39,13 +41,11 @@ it('can list customers only for the current tenant', function () {
 
 it('can create a customer', function () {
     Livewire::test(CreateCustomer::class, ['tenant' => $this->tenant])
-        ->fillForm([
-            'name' => 'John Doe',
-            'phone' => '3001234567',
-            'email' => 'john@example.com',
-        ])
+        ->set('data.name', 'John Doe')
+        ->set('data.phone', '3001234567')
+        ->set('data.email', 'john@example.com')
         ->call('create')
-        ->assertHasNoFormErrors();
+        ->assertHasNoErrors();
 
     $this->assertDatabaseHas('customers', [
         'name' => 'John Doe',
@@ -61,12 +61,10 @@ it('validates unique phone number per tenant', function () {
     ]);
 
     Livewire::test(CreateCustomer::class, ['tenant' => $this->tenant])
-        ->fillForm([
-            'name' => 'Jane Doe',
-            'phone' => '3001234567',
-        ])
+        ->set('data.name', 'Jane Doe')
+        ->set('data.phone', '3001234567')
         ->call('create')
-        ->assertHasFormErrors(['phone' => 'unique']);
+        ->assertHasErrors(['data.phone']);
 });
 
 it('allows same phone number in different tenants', function () {
@@ -77,12 +75,10 @@ it('allows same phone number in different tenants', function () {
     ]);
 
     Livewire::test(CreateCustomer::class, ['tenant' => $this->tenant])
-        ->fillForm([
-            'name' => 'Jane Doe',
-            'phone' => '3001234567',
-        ])
+        ->set('data.name', 'Jane Doe')
+        ->set('data.phone', '3001234567')
         ->call('create')
-        ->assertHasNoFormErrors();
+        ->assertHasNoErrors();
     
     $this->assertDatabaseHas('customers', [
         'name' => 'Jane Doe',

@@ -27,6 +27,22 @@ return [
             'map_help' => 'Usa la barra de búsqueda para encontrar tu dirección o mueve el pin directamente en el mapa.',
         ],
     ],
+    'forms' => [
+        'customer' => [
+            'name' => 'Nombre del Cliente',
+            'phone' => 'Teléfono',
+            'email' => 'Correo Electrónico',
+        ],
+        'booking' => [
+            'quote_details_label' => 'Detalles de la solicitud',
+            'quote_details_placeholder' => 'Escribe aquí los detalles...',
+            'quote_required_error' => 'Por favor, especifica los detalles de tu solicitud.',
+        ],
+    ],
+    'labels' => [
+        'customer' => 'Cliente',
+        'customers' => 'Clientes',
+    ],
     'notifications' => [
         'updated' => [
             'title' => 'Identidad actualizada',

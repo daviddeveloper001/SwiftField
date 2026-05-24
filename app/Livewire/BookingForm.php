@@ -170,7 +170,7 @@ class BookingForm extends Component
 
         if ($isQuote) {
             $rules['quote_text'] = 'required|string';
-            $messages['quote_text.required'] = "Por favor, especifica los detalles de tu solicitud.";
+            $messages['quote_text.required'] = __('branding.forms.booking.quote_required_error');
         } else {
             $rules['selectedDate'] = 'required|date|after_or_equal:today';
             $rules['selectedTime'] = 'required|string';
@@ -219,7 +219,14 @@ class BookingForm extends Component
             'is_auto_confirmed' => $autoConfirm && !$isQuote,
         ]);
 
-        $booking = $bookingService->createBooking($dto);
+        $result = $bookingService->createBooking($dto);
+
+        if ($result->failed()) {
+            $this->addError('service_id', $result->error);
+            return;
+        }
+
+        $booking = $result->data;
 
         // Redirect to WhatsApp using the service
         $url = app(WhatsAppNotificationService::class)->getBookingSubmissionUrl($booking);
