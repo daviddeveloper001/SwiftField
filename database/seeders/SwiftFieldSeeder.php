@@ -93,6 +93,22 @@ class SwiftFieldSeeder extends Seeder
                 ],
             ]
         );
+
+        // 6. Seed default availabilities for all tenants
+        foreach ([$superAdminTenant, $tenant1, $tenant2] as $tenant) {
+            foreach (\App\Enums\DayOfWeek::cases() as $day) {
+                \App\Models\Availability::updateOrCreate(
+                    [
+                        'tenant_id' => $tenant->id,
+                        'day_of_week' => $day->value,
+                    ],
+                    [
+                        'is_open' => $day->isOpenByDefault(),
+                        'ranges' => $day->isOpenByDefault() ? [['start_time' => '08:00', 'end_time' => '18:00']] : null,
+                    ]
+                );
+            }
+        }
     }
 }
 

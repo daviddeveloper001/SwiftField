@@ -126,8 +126,11 @@ public function getLandingConfigAttribute(): array
 
     protected static function booted()
     {
-        // Limpiamos la lógica legacy del booted ya que no hay columnas que sincronizar
-        // Una vez que corras la migración destructiva, este modelo estará perfectamente alineado
+        static::creating(function ($tenant) {
+            if (empty($tenant->uuid)) {
+                $tenant->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
     }
 
     public function getDurationAttribute(): ?int

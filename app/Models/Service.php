@@ -36,4 +36,13 @@ class Service extends ModelBase
         'shipping_fee' => 'decimal:2',
         'auto_confirm' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($service) {
+            if (empty($service->slug) && !empty($service->name)) {
+                $service->slug = \Illuminate\Support\Str::slug($service->name);
+            }
+        });
+    }
 }

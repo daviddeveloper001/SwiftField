@@ -155,7 +155,7 @@ class WhatsAppNotificationService
     public function getInboundUrl(Booking $booking): string
     {
         $booking->loadMissing(['customer']);
-        $customerPhone = preg_replace('/[^0-9]/', '', $booking->customer->phone);
+        $customerPhone = preg_replace('/[^0-9]/', '', $booking->customer?->getRawOriginal('phone') ?? '');
 
         return "https://wa.me/{$customerPhone}";
     }
@@ -174,7 +174,7 @@ class WhatsAppNotificationService
         $service = $booking->service;
         $customer = $booking->customer;
 
-        $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
+        $customerPhone = preg_replace('/[^0-9]/', '', $customer?->getRawOriginal('phone') ?? '');
         $scheduledAt = $booking->scheduled_at->format('d M Y - h:i A');
 
         $message = __('notifications.whatsapp.confirmation.message', [
@@ -204,7 +204,7 @@ class WhatsAppNotificationService
         $service = $booking->service;
         $customer = $booking->customer;
 
-        $customerPhone = preg_replace('/[^0-9]/', '', $customer->phone);
+        $customerPhone = preg_replace('/[^0-9]/', '', $customer?->getRawOriginal('phone') ?? '');
         $time = $booking->scheduled_at->format('h:i A');
 
         $message = __('notifications.whatsapp.reminder.message', [
