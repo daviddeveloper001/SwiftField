@@ -155,7 +155,7 @@ class BookingForm
                     ->reverseGeocode([
                         'custom_values.direccion_escrita' => '%n %s, %L',
                     ])
-                    ->defaultLocation([4.6097, -74.0817])
+                    ->defaultLocation([4.8136, -75.6946])
                     ->visible(fn (Get $get) => self::isDomicilio($get))
                     ->columnSpanFull(),
 
