@@ -64,4 +64,14 @@ class Booking extends ModelBase
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
     }
+
+    protected static function booted()
+    {
+        static::creating(function ($booking) {
+            if (empty($booking->uuid)) {
+                $booking->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 }
+

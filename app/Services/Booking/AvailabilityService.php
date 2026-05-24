@@ -135,16 +135,28 @@ class AvailabilityService
             ->where('is_open', true)
             ->first();
 
-        if (!$availability) {
-            \Illuminate\Support\Facades\Log::warning("No availability found or day closed for Day {$dayOfWeek}");
+        if (!$availability || empty($availability->ranges)) {
+            \Illuminate\Support\Facades\Log::warning("No availability found, day closed, or no ranges configured for Day {$dayOfWeek}");
             return false;
         }
 
-        $workStart = Carbon::parse($date . ' ' . $availability->start_time->format('H:i'));
-        $workEnd = Carbon::parse($date . ' ' . $availability->end_time->format('H:i'));
+        $fitsWithinRange = false;
+        foreach ($availability->ranges as $range) {
+            if (!isset($range['start_time']) || !isset($range['end_time'])) {
+                continue;
+            }
 
-        if ($startAt->lt($workStart) || $endAt->gt($workEnd)) {
-            \Illuminate\Support\Facades\Log::warning("Time range {$startAt->format('H:i')} - {$endAt->format('H:i')} is outside work hours {$workStart->format('H:i')} - {$workEnd->format('H:i')}");
+            $workStart = Carbon::parse($date . ' ' . $range['start_time']);
+            $workEnd = Carbon::parse($date . ' ' . $range['end_time']);
+
+            if ($startAt->gte($workStart) && $endAt->lte($workEnd)) {
+                $fitsWithinRange = true;
+                break;
+            }
+        }
+
+        if (!$fitsWithinRange) {
+            \Illuminate\Support\Facades\Log::warning("Time range {$startAt->format('H:i')} - {$endAt->format('H:i')} is outside work hours");
             return false;
         }
 
