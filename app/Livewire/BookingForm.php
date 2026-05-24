@@ -170,7 +170,7 @@ class BookingForm extends Component
 
         if ($isQuote) {
             $rules['quote_text'] = 'required|string';
-            $messages['quote_text.required'] = "Por favor, especifica el detalle para '{$this->selectedService->quote_label}'.";
+            $messages['quote_text.required'] = "Por favor, especifica los detalles de tu solicitud.";
         } else {
             $rules['selectedDate'] = 'required|date|after_or_equal:today';
             $rules['selectedTime'] = 'required|string';
