@@ -23,6 +23,7 @@ class Booking extends ModelBase
         'scheduled_at',
         'lat',
         'lng',
+        'location',
         'custom_values',
         'internal_notes',
         'is_auto_confirmed',
@@ -36,6 +37,22 @@ class Booking extends ModelBase
         'status' => BookingStatus::class,
         'is_auto_confirmed' => 'boolean',
     ];
+
+    public function getLocationAttribute(): array
+    {
+        return [
+            'lat' => $this->lat ? (float) $this->lat : null,
+            'lng' => $this->lng ? (float) $this->lng : null,
+        ];
+    }
+
+    public function setLocationAttribute(?array $location): void
+    {
+        if (is_array($location)) {
+            $this->lat = isset($location['lat']) ? (float) $location['lat'] : null;
+            $this->lng = isset($location['lng']) ? (float) $location['lng'] : null;
+        }
+    }
 
     public function tenant(): BelongsTo
     {

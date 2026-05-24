@@ -38,6 +38,10 @@ return [
             'how_to_get' => '🗺️ Cómo llegar',
             'your_home' => 'Tu Domicilio',
             'unknown_address' => 'Dirección por confirmar',
+            'place_label' => '📍 Lugar',
+            'customer_home' => 'Domicilio del cliente',
+            'reference_label' => '✨ Referencia',
+            'gps_route' => '🗺️ Ruta GPS',
         ],
     ],
     'fields' => [
