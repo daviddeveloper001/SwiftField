@@ -53,6 +53,11 @@ return [
         'customer' => 'Cliente',
         'customers' => 'Clientes',
     ],
+    'navigation_groups' => [
+        'business_management' => 'Gestión Operativa',
+        'online_presence' => 'Presencia Online',
+        'settings' => 'Configuración',
+    ],
     'notifications' => [
         'updated' => [
             'title' => 'Identidad actualizada',

@@ -19,6 +19,14 @@ class ManageSubscription extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-credit-card';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.settings');
+    }
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $title = 'Mi Suscripción';
     protected static ?string $navigationLabel = 'Facturación';
     protected string $view = 'filament.pages.manage-subscription';

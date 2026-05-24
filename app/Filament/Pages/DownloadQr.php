@@ -15,6 +15,13 @@ class DownloadQr extends Page
 {
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-qr-code';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.online_presence');
+    }
+
+    protected static ?int $navigationSort = 3;
+
     protected static ?string $navigationLabel = 'Mi Código QR';
 
     protected static ?string $title = 'Descargar Código QR';

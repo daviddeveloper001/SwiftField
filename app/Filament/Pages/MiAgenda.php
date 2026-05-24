@@ -9,6 +9,12 @@ use BackedEnum;
 class MiAgenda extends Page
 {
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-calendar';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.business_management');
+    }
+
     protected string $view = 'filament.pages.mi-agenda';
     protected static ?string $navigationLabel = 'Mi Agenda';
     protected static ?string $title = 'Mi Agenda';

@@ -23,6 +23,13 @@ class BookingResource extends Resource
 {
     protected static ?string $model = Booking::class;
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.business_management');
+    }
+
+    protected static ?int $navigationSort = 2;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
 
     protected static ?string $tenantOwnershipRelationshipName = 'tenant';

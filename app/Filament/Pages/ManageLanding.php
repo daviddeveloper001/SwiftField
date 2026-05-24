@@ -21,6 +21,13 @@ class ManageLanding extends Page implements HasForms
 
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-paint-brush';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.online_presence');
+    }
+
+    protected static ?int $navigationSort = 2;
+
     protected static ?string $navigationLabel = 'Constructor de Landing';
 
     protected static ?string $title = 'Personalizar Página de Inicio';
