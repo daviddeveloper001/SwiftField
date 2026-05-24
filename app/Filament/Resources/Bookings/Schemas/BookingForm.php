@@ -96,16 +96,13 @@ class BookingForm
                     ->options(BookingStatus::class)
                     ->required(),
                 TextInput::make('lat')
-                    ->label('Latitud')
-                    ->numeric(),
+                    ->hidden()
+                    ->dehydrated(),
                 TextInput::make('lng')
-                    ->label('Longitud')
-                    ->numeric(),
-                Textarea::make('internal_notes')
-                    ->label('Notas Internas')
-                    ->columnSpanFull(),
-
-                    Select::make('service_id')
+                    ->hidden()
+                    ->dehydrated(),
+                
+                Select::make('service_id')
                     ->label('Servicio')
                     ->relationship(
                         name: 'service',
@@ -115,7 +112,56 @@ class BookingForm
                     ->required()
                     ->searchable()
                     ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($get, $set, $state) {
+                        if (! $state) {
+                            return;
+                        }
+                        $service = Service::find($state);
+                        if ($service) {
+                            if ($service->delivery_mode !== 'hibrido') {
+                                $set('custom_values._delivery_mode', $service->delivery_mode);
+                            } else {
+                                $set('custom_values._delivery_mode', null);
+                            }
+                        }
+                    }),
+
+                Select::make('custom_values._delivery_mode')
+                    ->label(__('branding.forms.booking.delivery_mode_label'))
+                    ->options([
+                        'local' => __('branding.forms.booking.delivery_mode_local'),
+                        'domicilio' => __('branding.forms.booking.delivery_mode_domicilio'),
+                    ])
+                    ->required(fn (Get $get) => self::isHybrid($get))
+                    ->visible(fn (Get $get) => self::isHybrid($get))
                     ->live(),
+
+                TextInput::make('custom_values.direccion_escrita')
+                    ->label(__('branding.forms.booking.written_address_label'))
+                    ->placeholder(__('branding.forms.booking.written_address_placeholder'))
+                    ->required(fn (Get $get) => self::isDomicilio($get))
+                    ->visible(fn (Get $get) => self::isDomicilio($get))
+                    ->live(),
+
+                TextInput::make('custom_values.referencias')
+                    ->label(__('branding.forms.booking.references_label'))
+                    ->placeholder(__('branding.forms.booking.references_placeholder'))
+                    ->visible(fn (Get $get) => self::isDomicilio($get)),
+
+                \Cheesegrits\FilamentGoogleMaps\Fields\Map::make('location')
+                    ->label(__('branding.forms.booking.map_label'))
+                    ->autocomplete('custom_values.direccion_escrita')
+                    ->reverseGeocode([
+                        'custom_values.direccion_escrita' => '%n %s, %L',
+                    ])
+                    ->defaultLocation([4.6097, -74.0817])
+                    ->visible(fn (Get $get) => self::isDomicilio($get))
+                    ->columnSpanFull(),
+
+                Textarea::make('internal_notes')
+                    ->label('Notas Internas')
+                    ->columnSpanFull(),
                 
                 FusedGroup::make()
                     ->label('Campos Personalizados')
@@ -156,5 +202,39 @@ class BookingForm
                     })
                     ->columns(2),
             ]);
+    }
+
+    protected static function isDomicilio(Get $get): bool
+    {
+        $serviceId = $get('service_id');
+        if (! $serviceId) {
+            return false;
+        }
+
+        $service = Service::find($serviceId);
+        if (! $service) {
+            return false;
+        }
+
+        if ($service->delivery_mode === 'domicilio') {
+            return true;
+        }
+
+        if ($service->delivery_mode === 'hibrido') {
+            return $get('custom_values._delivery_mode') === 'domicilio';
+        }
+
+        return false;
+    }
+
+    protected static function isHybrid(Get $get): bool
+    {
+        $serviceId = $get('service_id');
+        if (! $serviceId) {
+            return false;
+        }
+
+        $service = Service::find($serviceId);
+        return $service && $service->delivery_mode === 'hibrido';
     }
 }

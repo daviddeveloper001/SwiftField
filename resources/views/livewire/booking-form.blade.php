@@ -223,39 +223,64 @@
                     </div>
                 @endif
 
-                <!-- Location block with AlpineJS -->
+                <!-- Location block with AlpineJS Map -->
                 @if($delivery_mode === 'domicilio')
-                <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md">
-                    <h3 class="font-medium text-gray-900 mb-2">📍 Tu Ubicación</h3>
-                    <p class="text-sm text-gray-600 mb-3">Necesitamos tu ubicación para que el profesional pueda llegar
-                        a ti.</p>
+                <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-md space-y-4">
+                    <h3 class="font-medium text-gray-900 mb-2">{{ __('branding.forms.booking.map_label') }}</h3>
+                    <p class="text-sm text-gray-600 mb-3">Ubica el pin en el mapa exactamente donde deseas recibir el servicio.</p>
 
-                    <button type="button" @click="getLocation"
-                        class="inline-flex items-center px-4 py-2 bg-primary hover:brightness-90 text-white text-sm font-medium rounded-md shadow-sm transition">
-                        <svg x-show="gettingLocation" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
-                        </svg>
-                        <span x-text="gettingLocation ? 'Obteniendo...' : 'Capturar Mi Ubicación'">Capturar Mi
-                            Ubicación</span>
-                    </button>
-
-                    <div x-show="locationError" x-text="locationError" class="mt-2 text-sm text-red-600"
-                        style="display: none;"></div>
-
-                    @if ($lat && $lng)
-                        <div class="mt-3 text-sm text-green-600 font-medium flex items-center">
-                            <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            ¡Ubicación registrada exitosamente!
+                    <!-- Map Container with Alpine.js -->
+                    <div 
+                        x-data="bookingMap({
+                            lat: @entangle('lat'),
+                            lng: @entangle('lng'),
+                            apiKey: '{{ config('filament-google-maps.key') }}'
+                        })"
+                        x-init="initMap()"
+                        class="space-y-4"
+                        wire:ignore
+                    >
+                        <div id="map" class="w-full h-64 rounded-lg border border-gray-300 shadow-sm"></div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <button type="button" @click="getCurrentLocation"
+                                class="inline-flex items-center px-4 py-2 bg-primary hover:brightness-90 text-white text-sm font-medium rounded-md shadow-sm transition">
+                                <svg x-show="gettingLocation" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <svg x-show="!gettingLocation" class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span x-text="gettingLocation ? 'Obteniendo...' : 'Capturar Mi Ubicación Actual'">Capturar Mi Ubicación Actual</span>
+                            </button>
                         </div>
-                    @endif
+                    </div>
+
+                    @error('lat')
+                        <span class="text-red-500 text-sm block mt-1">{{ $message }}</span>
+                    @enderror
+
+                    <!-- Written Address -->
+                    <div class="mt-4">
+                        <x-ui.label for="direccion_escrita" :value="__('branding.forms.booking.written_address_label') . ' (Obligatorio)'" />
+                        <x-ui.input type="text" wire:model="custom_values.direccion_escrita" id="direccion_escrita"
+                            placeholder="{{ __('branding.forms.booking.written_address_placeholder') }}" :error="$errors->has('custom_values.direccion_escrita')" />
+                        @error('custom_values.direccion_escrita')
+                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <!-- Additional indications / References -->
+                    <div class="mt-4">
+                        <x-ui.label for="referencias" :value="__('branding.forms.booking.references_label') . ' (Opcional)'" />
+                        <x-ui.input type="text" wire:model="custom_values.referencias" id="referencias"
+                            placeholder="{{ __('branding.forms.booking.references_placeholder') }}" />
+                    </div>
                 </div>
                 @endif
             </div>

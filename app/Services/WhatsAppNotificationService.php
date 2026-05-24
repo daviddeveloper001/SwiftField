@@ -126,21 +126,36 @@ class WhatsAppNotificationService
             if ($tenant->latitude && $tenant->longitude) {
                 $mapsLink = "https://www.google.com/maps/search/?api=1&query={$tenant->latitude},{$tenant->longitude}";
             }
+
+            $block = "\n" . __('notifications.whatsapp.location_block.title') . ": *{$meetingPlace}*\n";
+            $block .= __('notifications.whatsapp.location_block.address') . ": {$address}";
+            
+            if ($mapsLink) {
+                $block .= "\n" . __('notifications.whatsapp.location_block.how_to_get') . ": {$mapsLink}";
+            }
         } else {
-            $meetingPlace = __('notifications.whatsapp.location_block.your_home');
+            $meetingPlace = __('notifications.whatsapp.location_block.customer_home');
             
             // Buscar dirección en custom_values
-            $address = $booking->custom_values['direccion'] 
+            $address = $booking->custom_values['direccion_escrita']
+                ?? $booking->custom_values['direccion'] 
                 ?? $booking->custom_values['address'] 
                 ?? $booking->custom_values['Dirección']
                 ?? __('notifications.whatsapp.location_block.unknown_address');
-        }
 
-        $block = "\n" . __('notifications.whatsapp.location_block.title') . ": *{$meetingPlace}*\n";
-        $block .= __('notifications.whatsapp.location_block.address') . ": {$address}";
-        
-        if ($mode === 'local' && $mapsLink) {
-            $block .= "\n" . __('notifications.whatsapp.location_block.how_to_get') . ": {$mapsLink}";
+            $referencia = $booking->custom_values['referencias'] ?? null;
+            
+            $block = "\n" . __('notifications.whatsapp.location_block.place_label') . ": *{$meetingPlace}*\n";
+            $block .= __('notifications.whatsapp.location_block.address') . ": {$address}";
+            
+            if (!empty($referencia)) {
+                $block .= "\n" . __('notifications.whatsapp.location_block.reference_label') . ": {$referencia}";
+            }
+
+            if ($booking->lat && $booking->lng) {
+                $gpsLink = "https://www.google.com/maps/search/?api=1&query={$booking->lat},{$booking->lng}";
+                $block .= "\n" . __('notifications.whatsapp.location_block.gps_route') . ": {$gpsLink}";
+            }
         }
 
         return $block;

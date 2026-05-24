@@ -125,4 +125,48 @@ class WhatsAppNotificationServiceTest extends TestCase
         $this->assertStringContainsString(urlencode('Home Cleaning'), $url);
         $this->assertStringContainsString(urlencode('02:00 PM'), $url);
     }
+
+    public function test_get_confirmation_url_for_domicilio_generates_correct_location_details()
+    {
+        $tenant = Tenant::factory()->create([
+            'name' => 'Home Care Services',
+            'latitude' => 6.2442,
+            'longitude' => -75.5812,
+            'address' => 'HQ Address'
+        ]);
+
+        $service = Service::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Fumigación'
+        ]);
+
+        $customer = Customer::factory()->create([
+            'tenant_id' => $tenant->id,
+            'name' => 'Jane Smith',
+            'phone' => '573112223344'
+        ]);
+
+        $booking = Booking::factory()->create([
+            'tenant_id' => $tenant->id,
+            'service_id' => $service->id,
+            'customer_id' => $customer->id,
+            'scheduled_at' => '2026-03-22 15:30:00',
+            'lat' => 4.6097,
+            'lng' => -74.0817,
+            'custom_values' => [
+                '_delivery_mode' => 'domicilio',
+                'direccion_escrita' => 'Manzana A Casa 5',
+                'referencias' => 'Frente al parque principal'
+            ]
+        ]);
+
+        $serviceNotify = new WhatsAppNotificationService();
+        $url = $serviceNotify->getConfirmationUrl($booking);
+
+        $this->assertStringContainsString('wa.me/573112223344', $url);
+        $this->assertStringContainsString(urlencode('Jane Smith'), $url);
+        $this->assertStringContainsString(urlencode('Manzana A Casa 5'), $url);
+        $this->assertStringContainsString(urlencode('Frente al parque principal'), $url);
+        $this->assertStringContainsString(urlencode('https://www.google.com/maps/search/?api=1&query=4.6097,-74.0817'), $url);
+    }
 }

@@ -58,6 +58,8 @@ class BookingForm extends Component
         $this->tenantId = $tenantId;
         $this->services = Service::where('tenant_id', $this->tenantId)->where('is_active', true)->get();
         $this->selectedDate = now()->format('Y-m-d');
+        $this->custom_values['direccion_escrita'] = '';
+        $this->custom_values['referencias'] = '';
     }
 
     public function updatedServiceId($value)
@@ -68,7 +70,10 @@ class BookingForm extends Component
             $this->fieldDefinitions = is_string($this->selectedService->field_definitions) ? json_decode($this->selectedService->field_definitions, true) ?? [] : $this->selectedService->field_definitions ?? [];
 
             // Re-initialize custom values if service changes
-            $this->custom_values = [];
+            $this->custom_values = [
+                'direccion_escrita' => $this->custom_values['direccion_escrita'] ?? '',
+                'referencias' => $this->custom_values['referencias'] ?? '',
+            ];
             foreach ($this->fieldDefinitions as $field) {
                 $this->custom_values[$field['key'] ?? $field['name']] = ''; // default empty
             }
@@ -167,6 +172,16 @@ class BookingForm extends Component
             'customer_phone.regex' => 'Número celular no válido (ej: 310 123 4567).',
             'delivery_mode.required' => 'Por favor, selecciona dónde prefieres tu cita.',
         ];
+
+        if ($this->delivery_mode === 'domicilio') {
+            $rules['lat'] = 'required|numeric';
+            $rules['lng'] = 'required|numeric';
+            $rules['custom_values.direccion_escrita'] = 'required|string|max:255';
+            
+            $messages['lat.required'] = __('branding.forms.booking.gps_required');
+            $messages['lng.required'] = __('branding.forms.booking.gps_required');
+            $messages['custom_values.direccion_escrita.required'] = __('branding.forms.booking.written_address_required');
+        }
 
         if ($isQuote) {
             $rules['quote_text'] = 'required|string';
