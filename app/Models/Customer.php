@@ -22,6 +22,11 @@ class Customer extends ModelBase
         return $this->belongsTo(Tenant::class);
     }
 
+    public function bookings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     protected function phone(): Attribute
     {
         return Attribute::make(

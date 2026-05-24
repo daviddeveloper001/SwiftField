@@ -20,23 +20,27 @@ class SwiftFieldSeeder extends Seeder
     {
         // 0. Ensure a Super Admin exists
         $superAdmin = User::updateOrCreate(
-            ['email' => config('swiftfield.super_admin.email')],
+            ['email' => 'admin@swiftfield.com'],
             [
-                'name' => config('swiftfield.super_admin.name'),
-                'password' => bcrypt(config('swiftfield.super_admin.password')),
+                'name' => 'Super Admin',
+                'password' => bcrypt('Prueba123'),
                 'is_super_admin' => true,
             ]
         );
 
-        // 0.1 Ensure a test user exists for tenant testing
-        $user = User::firstOrCreate(
-            ['email' => 'test@example.com'],
+        // 0.1 Ensure a tenant for Super Admin exists
+        $superAdminTenant = Tenant::updateOrCreate(
+            ['slug' => 'swiftfield-admin'],
             [
-                'name' => 'Test User',
-                'password' => bcrypt('password'),
-                'is_super_admin' => false,
+                'uuid' => (string) Str::uuid(),
+                'name' => 'SwiftField Admin',
+                'is_active' => true,
+                'subscription_status' => \App\Enums\SubscriptionStatus::Active,
             ]
         );
+
+        // Associate Super Admin with their tenant
+        $superAdmin->tenants()->syncWithoutDetaching([$superAdminTenant->id]);
 
         // 1. Tenant: Ambientaplus JA
         $tenant1 = Tenant::updateOrCreate(
@@ -49,6 +53,19 @@ class SwiftFieldSeeder extends Seeder
                 'trial_ends_at' => now()->addDays(7),
             ]
         );
+
+        // 1.1 User for Ambientaplus
+        $ambientaplusUser = User::updateOrCreate(
+            ['email' => 'ambientaplus@swiftfield.com'],
+            [
+                'name' => 'Ambientaplus Admin',
+                'password' => bcrypt('Prueba123'),
+                'is_super_admin' => false,
+            ]
+        );
+
+        // Associate Ambientaplus user with their tenant
+        $ambientaplusUser->tenants()->syncWithoutDetaching([$tenant1->id]);
 
         // 2. Tenant 2: Decoraciones Pro
         $tenant2 = Tenant::updateOrCreate(
@@ -76,6 +93,6 @@ class SwiftFieldSeeder extends Seeder
                 ],
             ]
         );
-        
     }
 }
+

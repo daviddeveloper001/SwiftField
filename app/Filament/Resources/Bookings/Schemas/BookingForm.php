@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Enums\BookingStatus;
 use Filament\Schemas\Components\Utilities\Get;
 use App\Models\Service;
+use App\Models\Customer;
 
 class BookingForm
 {
@@ -26,11 +27,32 @@ class BookingForm
                     ->relationship(
                         name: 'customer',
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', Filament::getTenant()->id),
+                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', auth()->user()->tenants()->first()?->id),
                     )
                     ->required()
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label(__('branding.sections.visual_identity.name') ?? 'Nombre')
+                            ->required(),
+                        TextInput::make('phone')
+                            ->label(__('branding.sections.communication.phone') ?? 'Teléfono')
+                            ->tel()
+                            ->prefix('+57')
+                            ->mask('999 999 9999')
+                            ->stripCharacters(' ')
+                            ->required(),
+                        TextInput::make('email')
+                            ->label(__('Email'))
+                            ->email(),
+                    ])
+                    ->createOptionUsing(function (array $data): int {
+                        $data['tenant_id'] = auth()->user()->tenants()->first()?->id;
+                        
+                        return Customer::create($data)->id;
+                    }),
+
                 
 
                 DateTimePicker::make('scheduled_at')
@@ -74,7 +96,7 @@ class BookingForm
                     ->relationship(
                         name: 'service',
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', Filament::getTenant()->id),
+                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', auth()->user()->tenants()->first()?->id),
                     )
                     ->required()
                     ->searchable()

@@ -18,10 +18,9 @@ class TenantFactory extends Factory
     public function definition(): array
     {
         return [
+            'uuid' => Str::uuid()->toString(),
             'name' => fake()->company(),
-            'slug' => Str::slug(fake()->company()),
-            'primary_color' => '#000000',
-            'whatsapp_config' => ['phone' => fake()->phoneNumber()],
+            'slug' => Str::slug(fake()->unique()->company()),
         ];
     }
 }

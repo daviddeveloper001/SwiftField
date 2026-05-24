@@ -179,8 +179,8 @@ class ManageBranding extends Page implements HasForms
         // 3. Guardar Ubicación (Columnas en tabla tenants)
         $tenant->update([
             'address' => $state['address'],
-            'latitude' => $state['location']['lat'] ?? $state['latitude'],
-            'longitude' => $state['location']['lng'] ?? $state['longitude'],
+            'latitude' => $state['location']['lat'] ?? $state['latitude'] ?? null,
+            'longitude' => $state['location']['lng'] ?? $state['longitude'] ?? null,
         ]);
 
         Notification::make()

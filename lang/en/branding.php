@@ -6,6 +6,7 @@ return [
     'sections' => [
         'visual_identity' => [
             'title' => 'Visual Identity',
+            'name' => 'Name',
             'description' => 'Configure your corporate colors and logo.',
             'logo' => 'Logo',
             'primary_color' => 'Primary Color',
