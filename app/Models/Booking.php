@@ -21,6 +21,7 @@ class Booking extends ModelBase
         'customer_id',
         'status',
         'scheduled_at',
+        'completed_at',
         'lat',
         'lng',
         'location',
@@ -31,6 +32,7 @@ class Booking extends ModelBase
 
     protected $casts = [
         'scheduled_at' => 'datetime',
+        'completed_at' => 'datetime',
         'lat' => 'float',
         'lng' => 'float',
         'custom_values' => 'array',
@@ -87,6 +89,16 @@ class Booking extends ModelBase
         static::creating(function ($booking) {
             if (empty($booking->uuid)) {
                 $booking->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+
+        static::updating(function ($booking) {
+            if ($booking->isDirty('status')) {
+                if ($booking->status === BookingStatus::Completed) {
+                    $booking->completed_at = now();
+                } elseif ($booking->getOriginal('status') === BookingStatus::Completed) {
+                    $booking->completed_at = null;
+                }
             }
         });
     }

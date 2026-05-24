@@ -2,9 +2,13 @@
 
 namespace App\Filament\Resources\Services\Schemas;
 
+use App\Constants\ReminderConstants;
+use App\Constants\TemplateConstants;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
@@ -112,6 +116,42 @@ class ServiceForm
                     ->visible(fn ($get) => (bool) $get('requires_quote'))
                     ->columnSpanFull()
                     ->columns(3),
+
+                // ─── Sección: Recordatorio de Re-agendamiento ───
+                Fieldset::make('Recordatorio de Re-agendamiento')
+                    ->schema([
+                        Toggle::make('has_reorder_reminder')
+                            ->label('¿Activar recordatorio de re-agendamiento?')
+                            ->helperText('Envía un recordatorio al cliente cuando se cumple el periodo configurado desde que completó su última cita.')
+                            ->live()
+                            ->default(false)
+                            ->columnSpanFull(),
+
+                        TextInput::make('reorder_value')
+                            ->label('Periodo de retención')
+                            ->numeric()
+                            ->minValue(1)
+                            ->required(fn ($get) => (bool) $get('has_reorder_reminder'))
+                            ->visible(fn ($get) => (bool) $get('has_reorder_reminder'))
+                            ->helperText('Cantidad numérica del periodo tras el cual se enviará el recordatorio.'),
+
+                        Select::make('reorder_unit')
+                            ->label('Unidad de tiempo')
+                            ->options(ReminderConstants::unitOptions())
+                            ->required(fn ($get) => (bool) $get('has_reorder_reminder'))
+                            ->visible(fn ($get) => (bool) $get('has_reorder_reminder')),
+
+                        Textarea::make('reorder_message_template')
+                            ->label('Plantilla del mensaje')
+                            ->rows(4)
+                            ->required(fn ($get) => (bool) $get('has_reorder_reminder'))
+                            ->visible(fn ($get) => (bool) $get('has_reorder_reminder'))
+                            ->helperText(TemplateConstants::helperText())
+                            ->placeholder('Hola {cliente}, ha pasado un tiempo desde tu última sesión de {servicio}. ¡Agenda tu próxima cita aquí! {link_agenda}')
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 }
+

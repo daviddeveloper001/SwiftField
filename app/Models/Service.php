@@ -26,6 +26,10 @@ class Service extends ModelBase
         'delivery_mode',
         'shipping_fee',
         'auto_confirm',
+        'has_reorder_reminder',
+        'reorder_value',
+        'reorder_unit',
+        'reorder_message_template',
     ];
 
     protected $casts = [
@@ -35,6 +39,8 @@ class Service extends ModelBase
         'requires_quote' => 'boolean',
         'shipping_fee' => 'decimal:2',
         'auto_confirm' => 'boolean',
+        'has_reorder_reminder' => 'boolean',
+        'reorder_value' => 'integer',
     ];
 
     protected static function booted()
