@@ -27,6 +27,13 @@ class ManageBranding extends Page implements HasForms
     
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-swatch';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.online_presence');
+    }
+
+    protected static ?int $navigationSort = 1;
+
     public static function getNavigationLabel(): string
     {
         return __('branding.navigation_label');

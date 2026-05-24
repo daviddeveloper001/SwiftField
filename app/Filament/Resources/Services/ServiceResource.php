@@ -22,6 +22,13 @@ class ServiceResource extends Resource
 {
     protected static ?string $model = Service::class;
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.business_management');
+    }
+
+    protected static ?int $navigationSort = 3;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedWrenchScrewdriver;
 
     protected static ?string $tenantOwnershipRelationshipName = 'tenant';

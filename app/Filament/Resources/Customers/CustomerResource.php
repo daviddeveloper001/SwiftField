@@ -22,6 +22,13 @@ class CustomerResource extends Resource
 {
     protected static ?string $model = Customer::class;
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branding.navigation_groups.business_management');
+    }
+
+    protected static ?int $navigationSort = 4;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static ?string $tenantOwnershipRelationshipName = 'tenant';
