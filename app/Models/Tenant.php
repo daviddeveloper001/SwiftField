@@ -41,9 +41,29 @@ class Tenant extends ModelBase
         'subscription_status' => \App\Enums\SubscriptionStatus::class,
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
+
+    protected $appends = [
+        'location',
+    ];
+
+    public function getLocationAttribute(): array
+    {
+        return [
+            'lat' => $this->latitude ? (float) $this->latitude : null,
+            'lng' => $this->longitude ? (float) $this->longitude : null,
+        ];
+    }
+
+    public function setLocationAttribute(?array $location): void
+    {
+        if (is_array($location)) {
+            $this->latitude = isset($location['lat']) ? (float) $location['lat'] : null;
+            $this->longitude = isset($location['lng']) ? (float) $location['lng'] : null;
+        }
+    }
 /**
  * Accessor para Branding Centralizado (Colores, Logo)
  */

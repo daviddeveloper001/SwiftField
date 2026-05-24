@@ -146,18 +146,8 @@ class ManageBranding extends Page implements HasForms
                             ->reverseGeocode([
                                 'address' => '%n %s, %L',
                             ])
-                            ->defaultLocation([4.6097, -74.0817])
+                            ->defaultLocation([4.8136, -75.6946])
                             ->columnSpanFull(),
-
-                        TextInput::make('latitude')
-                            ->label(__('branding.sections.location.latitude'))
-                            ->hidden()
-                            ->readOnly(),
-
-                        TextInput::make('longitude')
-                            ->label(__('branding.sections.location.longitude'))
-                            ->hidden()
-                            ->readOnly(),
                     ]),
             ])
             ->statePath('data');
@@ -186,8 +176,10 @@ class ManageBranding extends Page implements HasForms
         // 3. Guardar Ubicación (Columnas en tabla tenants)
         $tenant->update([
             'address' => $state['address'],
-            'latitude' => $state['location']['lat'] ?? $state['latitude'] ?? null,
-            'longitude' => $state['location']['lng'] ?? $state['longitude'] ?? null,
+            'location' => [
+                'lat' => (float) ($state['location']['lat'] ?? 4.8136),
+                'lng' => (float) ($state['location']['lng'] ?? -75.6946),
+            ],
         ]);
 
         Notification::make()
