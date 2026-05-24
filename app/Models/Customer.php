@@ -6,8 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
+use App\Traits\BelongsToTenant;
+
 class Customer extends ModelBase
 {
+    use BelongsToTenant;
+
     protected $table = 'customers';
 
     protected $fillable = [
@@ -16,11 +20,6 @@ class Customer extends ModelBase
         'email',
         'phone',
     ];
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
-    }
 
     public function bookings(): \Illuminate\Database\Eloquent\Relations\HasMany
     {

@@ -5,8 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Traits\BelongsToTenant;
+
 class Service extends ModelBase
 {
+    use BelongsToTenant;
+
     protected $table = 'services';
 
     protected $fillable = [
@@ -19,7 +23,6 @@ class Service extends ModelBase
         'is_active',
         'description',
         'requires_quote',
-        'quote_label',
         'delivery_mode',
         'shipping_fee',
         'auto_confirm',
@@ -33,9 +36,4 @@ class Service extends ModelBase
         'shipping_fee' => 'decimal:2',
         'auto_confirm' => 'boolean',
     ];
-
-    public function tenant(): BelongsTo
-    {
-        return $this->belongsTo(Tenant::class);
-    }
 }

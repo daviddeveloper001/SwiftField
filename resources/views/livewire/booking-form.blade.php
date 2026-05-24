@@ -129,30 +129,7 @@
 
     <!-- Step 3: Contact & Location -->
     @if ($step === 3)
-        <div x-data="{
-            gettingLocation: false,
-            locationError: null,
-            getLocation() {
-                this.gettingLocation = true;
-                this.locationError = null;
-                if (!navigator.geolocation) {
-                    this.locationError = 'Geolocalización no es soportada por tu navegador.';
-                    this.gettingLocation = false;
-                    return;
-                }
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        $wire.set('lat', position.coords.latitude);
-                        $wire.set('lng', position.coords.longitude);
-                        this.gettingLocation = false;
-                    },
-                    (error) => {
-                        this.locationError = 'No se pudo obtener la ubicación. Por favor acepta los permisos.';
-                        this.gettingLocation = false;
-                    }
-                );
-            }
-        }">
+        <div x-data="bookingGeolocation">
 
             <h2 class="text-xl font-bold mb-4 text-gray-800">Casi listos...</h2>
 
@@ -236,10 +213,10 @@
                 @else
                     <!-- Quote Field -->
                     <div>
-                        <x-ui.label for="quote_text" value="Detalles de la solicitud" />
+                        <x-ui.label for="quote_text" :value="__('branding.forms.booking.quote_details_label')" />
                         <textarea wire:model="quote_text" id="quote_text" rows="3"
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary {{ $errors->has('quote_text') ? 'border-red-500' : '' }}"
-                            placeholder="Escribe aquí los detalles..."></textarea>
+                            :placeholder="__('branding.forms.booking.quote_details_placeholder')"></textarea>
                         @error('quote_text')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror

@@ -34,17 +34,31 @@ class BookingForm
                     ->preload()
                     ->createOptionForm([
                         TextInput::make('name')
-                            ->label(__('branding.sections.visual_identity.name') ?? 'Nombre')
+                            ->label(__('branding.forms.customer.name'))
                             ->required(),
                         TextInput::make('phone')
-                            ->label(__('branding.sections.communication.phone') ?? 'Teléfono')
+                            ->label(__('branding.forms.customer.phone'))
                             ->tel()
                             ->prefix('+57')
                             ->mask('999 999 9999')
                             ->stripCharacters(' ')
-                            ->required(),
+                            ->required()
+                            ->rules([
+                                fn (\Filament\Schemas\Components\Utilities\Get $get): \Closure => function (string $attribute, $value, \Closure $fail) use ($get) {
+                                    $clean = preg_replace('/[^0-9]/', '', (string)$value);
+                                    if (!empty($clean) && !str_starts_with($clean, '57')) {
+                                        $clean = '57' . $clean;
+                                    }
+                                    
+                                    $tenantId = auth()->user()->tenants()->first()?->id;
+                                    
+                                    if (\App\Models\Customer::where('tenant_id', $tenantId)->where('phone', $clean)->exists()) {
+                                        $fail(__('validation.unique', ['attribute' => __('branding.forms.customer.phone')]));
+                                    }
+                                }
+                            ]),
                         TextInput::make('email')
-                            ->label(__('Email'))
+                            ->label(__('branding.forms.customer.email'))
                             ->email(),
                     ])
                     ->createOptionUsing(function (array $data): int {

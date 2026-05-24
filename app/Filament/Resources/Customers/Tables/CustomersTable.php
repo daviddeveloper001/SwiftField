@@ -19,19 +19,19 @@ class CustomersTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('branding.sections.visual_identity.name') ?? 'Nombre')
+                    ->label(__('branding.forms.customer.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('phone')
-                    ->label(__('branding.sections.communication.phone') ?? 'Teléfono')
+                    ->label(__('branding.forms.customer.phone'))
                     ->searchable()
                     ->formatStateUsing(fn (string $state): string => 
                         str_starts_with($state, '57') ? substr($state, 2) : $state
                     ),
 
                 TextColumn::make('email')
-                    ->label(__('Email'))
+                    ->label(__('branding.forms.customer.email'))
                     ->searchable(),
 
                 TextColumn::make('bookings_count')
