@@ -6,6 +6,7 @@ return [
     'sections' => [
         'visual_identity' => [
             'title' => 'Identidad Visual',
+            'name' => 'Nombre',
             'description' => 'Configura los colores y el logotipo corporativo.',
             'logo' => 'Logotipo',
             'primary_color' => 'Color Primario',
