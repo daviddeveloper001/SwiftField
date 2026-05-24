@@ -32,6 +32,13 @@ return [
         'reminder' => [
             'message' => 'Hola :customer, te recordamos tu cita de :service hoy a las :time. ¡Estamos listos para atenderte!',
         ],
+        'location_block' => [
+            'title' => '📍 Lugar del encuentro',
+            'address' => '🏠 Dirección',
+            'how_to_get' => '🗺️ Cómo llegar',
+            'your_home' => 'Tu Domicilio',
+            'unknown_address' => 'Dirección por confirmar',
+        ],
     ],
     'fields' => [
         '_delivery_mode' => 'Modalidad',

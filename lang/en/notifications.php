@@ -32,6 +32,13 @@ return [
         'reminder' => [
             'message' => 'Hello :customer, we remind you of your :service appointment today at :time. We are ready to assist you!',
         ],
+        'location_block' => [
+            'title' => '📍 Meeting place',
+            'address' => '🏠 Address',
+            'how_to_get' => '🗺️ How to get there',
+            'your_home' => 'Your Home',
+            'unknown_address' => 'Address to be confirmed',
+        ],
     ],
     'fields' => [
         '_delivery_mode' => 'Mode',
