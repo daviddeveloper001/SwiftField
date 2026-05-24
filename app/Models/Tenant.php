@@ -31,6 +31,9 @@ class Tenant extends ModelBase
         'trial_ends_at',
         'subscription_ends_at',
         'payment_proof',
+        'address',
+        'latitude',
+        'longitude',
     ];
 
     protected $casts = [
@@ -38,6 +41,8 @@ class Tenant extends ModelBase
         'subscription_status' => \App\Enums\SubscriptionStatus::class,
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 /**
  * Accessor para Branding Centralizado (Colores, Logo)

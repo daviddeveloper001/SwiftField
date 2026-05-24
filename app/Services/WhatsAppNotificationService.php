@@ -95,10 +95,8 @@ class WhatsAppNotificationService
             $message .= $this->formatCustomValuesToString((array) $booking->custom_values) . "\n";
         }
 
-        if ($booking->lat && $booking->lng) {
-            $message .= "\n📍 *" . __('notifications.whatsapp.booking_submission.location') . ":*\n";
-            $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}\n";
-        }
+        // Bloque de Ubicación Refactorizado (Tarea 2 & 3)
+        $message .= $this->getLocationBlock($booking) . "\n";
 
         // Enlace directo al panel administrativo
         $adminUrl = route('filament.admin.resources.bookings.index', ['tenant' => $tenant->slug]);
@@ -107,6 +105,45 @@ class WhatsAppNotificationService
         $message .= "\n\n" . __('notifications.whatsapp.booking_submission.footer', ['tenant' => $tenant->name]);
 
         return "https://wa.me/{$phone}?text=" . urlencode(trim($message));
+    }
+
+    /**
+     * Genera el bloque de ubicación formateado con emojis (Tarea 2, 3 & 4).
+     */
+    private function getLocationBlock(Booking $booking): string
+    {
+        $tenant = $booking->tenant;
+        $mode = $booking->custom_values['_delivery_mode'] ?? 'local';
+        
+        $meetingPlace = '';
+        $address = '';
+        $mapsLink = '';
+
+        if ($mode === 'local') {
+            $meetingPlace = $tenant->name;
+            $address = $tenant->address ?: __('notifications.whatsapp.location_block.unknown_address');
+            
+            if ($tenant->latitude && $tenant->longitude) {
+                $mapsLink = "https://www.google.com/maps/search/?api=1&query={$tenant->latitude},{$tenant->longitude}";
+            }
+        } else {
+            $meetingPlace = __('notifications.whatsapp.location_block.your_home');
+            
+            // Buscar dirección en custom_values
+            $address = $booking->custom_values['direccion'] 
+                ?? $booking->custom_values['address'] 
+                ?? $booking->custom_values['Dirección']
+                ?? __('notifications.whatsapp.location_block.unknown_address');
+        }
+
+        $block = "\n" . __('notifications.whatsapp.location_block.title') . ": *{$meetingPlace}*\n";
+        $block .= __('notifications.whatsapp.location_block.address') . ": {$address}";
+        
+        if ($mode === 'local' && $mapsLink) {
+            $block .= "\n" . __('notifications.whatsapp.location_block.how_to_get') . ": {$mapsLink}";
+        }
+
+        return $block;
     }
 
     /**
@@ -148,10 +185,7 @@ class WhatsAppNotificationService
             'duration' => $tenant->duration ?? 0,
         ]);
 
-        if ($booking->lat && $booking->lng) {
-            $message .= "\n\n📍 " . __('notifications.whatsapp.confirmation.location_registered') . ":\n";
-            $message .= "https://www.google.com/maps?q={$booking->lat},{$booking->lng}";
-        }
+        $message .= "\n" . $this->getLocationBlock($booking);
 
         return "https://wa.me/{$customerPhone}?text=" . urlencode(trim($message));
     }

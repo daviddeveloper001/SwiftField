@@ -19,6 +19,7 @@ use BackedEnum;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Schemas\Components\Grid;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 
 class ManageBranding extends Page implements HasForms
 {
@@ -26,9 +27,15 @@ class ManageBranding extends Page implements HasForms
     
     protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-swatch';
 
-    protected static ?string $navigationLabel = 'Personalización';
+    public static function getNavigationLabel(): string
+    {
+        return __('branding.navigation_label');
+    }
 
-    protected static ?string $title = 'Personalización del Negocio';
+    public function getTitle(): string
+    {
+        return __('branding.title');
+    }
 
     protected string $view = 'filament.pages.manage-branding';
 
@@ -47,6 +54,13 @@ class ManageBranding extends Page implements HasForms
                 'primary_color' => $branding['primary_color'] ?? '#3b82f6',
                 'secondary_color' => $branding['secondary_color'] ?? '#1e40af',
                 'phone' => $whatsapp['phone'] ?? '',
+                'address' => $tenant->address ?? '',
+                'location' => [
+                    'lat' => $tenant->latitude,
+                    'lng' => $tenant->longitude,
+                ],
+                'latitude' => $tenant->latitude ?? '',
+                'longitude' => $tenant->longitude ?? '',
             ]);
         }
     }
@@ -69,13 +83,13 @@ class ManageBranding extends Page implements HasForms
     {
         return $form
             ->schema([
-                Section::make('Identidad Visual')
-                    ->description('Configura los colores y el logotipo corporativo.')
+                Section::make(__('branding.sections.visual_identity.title'))
+                    ->description(__('branding.sections.visual_identity.description'))
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 FileUpload::make('logo_url')
-                                    ->label('Logotipo')
+                                    ->label(__('branding.sections.visual_identity.logo'))
                                     ->image()
                                     ->directory('tenant-logos')
                                     ->imageEditor()
@@ -85,21 +99,21 @@ class ManageBranding extends Page implements HasForms
                                 Grid::make(1)
                                     ->schema([
                                         ColorPicker::make('primary_color')
-                                            ->label('Color Primario')
+                                            ->label(__('branding.sections.visual_identity.primary_color'))
                                             ->required(),
                                         ColorPicker::make('secondary_color')
-                                            ->label('Color Secundario')
+                                            ->label(__('branding.sections.visual_identity.secondary_color'))
                                             ->required(),
                                     ])
                                     ->columnSpan(2),
                             ]),
                     ]),
 
-                Section::make('Comunicación')
-                    ->description('Datos de contacto para integraciones (WhatsApp).')
+                Section::make(__('branding.sections.communication.title'))
+                    ->description(__('branding.sections.communication.description'))
                     ->schema([
                         TextInput::make('phone')
-                            ->label('Número de WhatsApp')
+                            ->label(__('branding.sections.communication.phone'))
                             ->prefix('+57')
                             ->mask('999 999 9999')
                             ->stripCharacters(' ')
@@ -109,6 +123,34 @@ class ManageBranding extends Page implements HasForms
                                 }
                             })
                             ->required(),
+                    ]),
+
+                Section::make(__('branding.sections.location.title'))
+                    ->description(__('branding.sections.location.description'))
+                    ->schema([
+                        TextInput::make('address')
+                            ->label(__('branding.sections.location.address'))
+                            ->placeholder(__('branding.sections.location.address_placeholder'))
+                            ->required(),
+                        
+                        Map::make('location')
+                            ->label(__('branding.sections.location.title'))
+                            ->autocomplete('address')
+                            ->reverseGeocode([
+                                'address' => '%n %s, %L',
+                            ])
+                            ->defaultLocation([4.6097, -74.0817])
+                            ->columnSpanFull(),
+
+                        TextInput::make('latitude')
+                            ->label(__('branding.sections.location.latitude'))
+                            ->hidden()
+                            ->readOnly(),
+
+                        TextInput::make('longitude')
+                            ->label(__('branding.sections.location.longitude'))
+                            ->hidden()
+                            ->readOnly(),
                     ]),
             ])
             ->statePath('data');
@@ -134,10 +176,18 @@ class ManageBranding extends Page implements HasForms
             'phone' => '57' . $cleanPhone,
         ]);
 
+        // 3. Guardar Ubicación (Columnas en tabla tenants)
+        $tenant->update([
+            'address' => $state['address'],
+            'latitude' => $state['location']['lat'] ?? $state['latitude'],
+            'longitude' => $state['location']['lng'] ?? $state['longitude'],
+        ]);
+
         Notification::make()
-            ->title('Identidad actualizada')
-            ->body('Los cambios se han aplicado a todo el sistema.')
+            ->title(__('branding.notifications.updated.title'))
+            ->body(__('branding.notifications.updated.body'))
             ->success()
             ->send();
     }
 }
+
