@@ -56,6 +56,7 @@ class SuperAdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin::make(),
+                \Deivy\SaasCore\Filament\SaasCorePlugin::make(),
             ]);
     }
 }

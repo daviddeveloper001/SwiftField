@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bc178da2f370d0181321720678ec4671",
+    "content-hash": "043bab0b6be956e4ca6da80a82d71ada",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -953,6 +953,47 @@
                 "source": "https://github.com/DASPRiD/Enum/tree/1.0.7"
             },
             "time": "2025-09-16T12:23:56+00:00"
+        },
+        {
+            "name": "deivy/saas-core",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../paquetes-locales/saas-core",
+                "reference": "f336fa3a2e6e9146d14df13a490d390ed4a8316a"
+            },
+            "require": {
+                "filament/filament": "^3.0|^4.0|^5.0",
+                "laravel/framework": "^11.0|^12.0|^13.0",
+                "php": "^8.4|^8.5"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Deivy\\SaasCore\\Providers\\SaasCoreServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Deivy\\SaasCore\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Deivy",
+                    "email": "deivy@example.com"
+                }
+            ],
+            "description": "Core package for SaaS management, subscriptions, and multi-tenancy lockout logic.",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "dflydev/dot-access-data",
@@ -14613,7 +14654,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "deivy/saas-core": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

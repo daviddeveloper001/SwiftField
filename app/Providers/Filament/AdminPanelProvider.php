@@ -63,9 +63,10 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->plugins([
                 \BezhanSalleh\FilamentExceptions\FilamentExceptionsPlugin::make(),
+                \Deivy\SaasCore\Filament\SaasCorePlugin::make(),
             ])
             ->tenantMiddleware([
-                \App\Http\Middleware\CheckSubscription::class,
+                \Deivy\SaasCore\Http\Middleware\CheckSubscription::class,
             ], isPersistent: true);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Deivy\SaasCore\Traits\HasSaaSManagement;
 
 use App\Traits\HasTenantSettings;
 
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tenant extends ModelBase
 {
-    use LogsActivity, HasTenantSettings;
+    use LogsActivity, HasTenantSettings, HasSaaSManagement;
 
     protected $table = 'tenants';
 
@@ -111,29 +112,6 @@ public function getLandingConfigAttribute(): array
         
         if (empty($phone)) return $phone;
         return str_starts_with($phone, '57') ? substr($phone, 2) : $phone;
-    }
-
-    public function hasValidSubscription(): bool
-    {
-        if ($this->subscription_status === \App\Enums\SubscriptionStatus::Active) {
-            return $this->subscription_ends_at && $this->subscription_ends_at->isFuture();
-        }
-
-        if ($this->subscription_status === \App\Enums\SubscriptionStatus::Trial) {
-            return $this->trial_ends_at && $this->trial_ends_at->isFuture();
-        }
-
-        return false;
-    }
-
-    public function isTrial(): bool
-    {
-        return $this->subscription_status === \App\Enums\SubscriptionStatus::Trial;
-    }
-
-    public function isExpired(): bool
-    {
-        return !$this->hasValidSubscription();
     }
 
     public function getActivitylogOptions(): LogOptions

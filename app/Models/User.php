@@ -15,11 +15,12 @@ use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Deivy\SaasCore\Traits\HasSaaSManagement;
 
 class User extends Authenticatable implements HasTenants, FilamentUser
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, LogsActivity;
+    use HasFactory, Notifiable, LogsActivity, HasSaaSManagement;
 
     public function getTenants(Panel $panel): Collection
     {
@@ -45,7 +46,7 @@ class User extends Authenticatable implements HasTenants, FilamentUser
         }
 
         if ($panel->getId() === 'admin') {
-            return !$this->is_super_admin && $this->tenants()->exists();
+            return $this->is_super_admin || $this->tenants()->exists();
         }
 
         return false;

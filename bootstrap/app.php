@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\LogContext::class,
+            \Deivy\SaasCore\Http\Middleware\CheckSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -45,7 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     $tenantId = \Filament\Facades\Filament::getTenant()?->id;
                 }
 
-                \App\Models\SystemException::create([
+                \Deivy\SaasCore\Models\SaasSystemException::create([
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
                     'line' => $e->getLine(),
@@ -54,7 +55,8 @@ return Application::configure(basePath: dirname(__DIR__))
                     'tenant_id' => $tenantId,
                     'url' => request()->fullUrl(),
                     'method' => request()->method(),
-                    'status' => 'open',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
                 ]);
             } catch (\Throwable $th) {
                 // Silently fail if logging fails to prevent loops
